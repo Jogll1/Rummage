@@ -2,30 +2,29 @@
 
 #include <iostream>
 
+#include "resources.hpp"
+
 namespace Rummage 
 {
-	Tile::Tile() : rank(RANK_NONE), suit(SUIT_NONE) {}
-
-	Tile::Tile(Suit s, Rank r) : rank(r), suit(s) 
+	Tile::Tile(Suit s, Rank r) : m_suit(s), m_rank(r), m_sprite(*ResourceManager::getTexture(ResourceManager::kAtlasPath))
 	{
-		/*if (!texture.loadFromFile("../../../../resources/images/RummageTile.png"))
-		{
-			exit(0);
-		}*/
+		m_sprite.setTextureRect(sf::IntRect({ 3 * kTileSize, 0 }, { kTileSize, kTileSize }));
 	}
 
-	void Tile::drawAt(sf::RenderWindow& window, sf::Vector2f pos)
+	// Public functions
+
+	void Tile::draw(sf::RenderTarget& target, sf::RenderStates states) const
 	{
-		sf::RectangleShape rect(sf::Vector2f(kTileSize, kTileSize));
-
-		rect.setPosition(pos);
-		rect.setFillColor(sf::Color(233, 233, 217));
-
-		window.draw(rect);
+		target.draw(m_sprite);
 	}
 
 	void Tile::move()
 	{
 		//sf::Vector2f mouse_pos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+	}
+
+	void Tile::setPosition(sf::Vector2f pos)
+	{
+		m_sprite.setPosition(pos);
 	}
 }

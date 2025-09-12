@@ -2,60 +2,80 @@
 
 #include <SFML/Graphics.hpp>
 
+#include <memory>
+
 #include "slot.hpp"
+#include "tile.hpp"
 
 namespace Rummage
 {
-	Board::Board(unsigned int x, unsigned int y) : tilesX(x), tilesY(y), slots(tilesX * tilesY)
+	Board::Board(unsigned int x, unsigned int y) : m_tilesX(x), m_tilesY(y), m_slots(x * y)
 	{
 		// Width:  paddingL + (tile width + gapX) * tilesX - gapX + paddingR
 		// Height: paddingT + (tile height + gapY) * tilesY - gapY + paddingB
 
-		size = sf::Vector2f(
-			static_cast<float>(padding + (18 + gap) * tilesX - gap + padding),
-			static_cast<float>(padding + (18 + gap) * tilesY - gap + padding)
+		m_size = sf::Vector2f(
+			static_cast<float>(m_padding + (18 + m_gap) * m_tilesX - m_gap + m_padding),
+			static_cast<float>(m_padding + (18 + m_gap) * m_tilesY - m_gap + m_padding)
 		);
+
+		// Position each slot
+		for (unsigned int y = 0; y < m_tilesY; y++) {
+			for (unsigned int x = 0; x < m_tilesX; x++) {
+				sf::Vector2f pos = sf::Vector2f(
+					static_cast<float>(m_padding + (18 + m_gap) * x),
+					static_cast<float>(m_padding + (18 + m_gap) * y)
+				);
+
+				m_slots[y * m_tilesX + x].setPosition(pos);
+			}
+		}
+		
+		// Test
+		if (Slot* slot = getSlotAt(1, 0))
+		{
+			slot->setTile(std::make_unique<Tile>());
+		}
 	}
 
 	Board::~Board() {}
-
 
 	// Getters
 
 	unsigned int Board::getTilesX() const
 	{
-		return tilesX;
+		return m_tilesX;
 	}
 
 	unsigned int Board::getTilesY() const
 	{
-		return tilesY;
+		return m_tilesY;
 	}
 
 	sf::Vector2f Board::getSize() const
 	{
-		return size;
+		return m_size;
 	}
 
-	Slot& Board::getSlotAt(unsigned int x, unsigned int y)
+	// Get the slot on the board at (x, y).
+	// Returns nullptr for invalid slots.
+	Slot* Board::getSlotAt(unsigned int x, unsigned int y)
 	{
-		// Get the slot on the board at (x, y)
-		return slots[y * tilesX + x];
+		if (y >= 0 && y < m_tilesY && x >= 0 && x < m_tilesX)
+		{
+			return &m_slots[y * m_tilesX + x];
+		}
+
+		return nullptr;
 	}
 
 	// Public functions
 
-	void Board::draw(sf::RenderWindow& window)
+	void Board::draw(sf::RenderTarget& target, sf::RenderStates states) const 
 	{
-		for (unsigned int y = 0; y < tilesY; y++) {
-			for (unsigned int x = 0; x < tilesX; x++) {
-				sf::Vector2f pos = sf::Vector2f(
-					static_cast<float>(padding + (18 + gap) * x),
-					static_cast<float>(padding + (18 + gap) * y)
-				);
-
-				getSlotAt(x, y).drawAt(window, pos);
-			}
+		for (const auto& slot : m_slots)
+		{
+			target.draw(slot, states);
 		}
 	}
 }

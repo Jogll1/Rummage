@@ -1,29 +1,41 @@
 #include "slot.hpp"
 
+#include <SFML/Graphics.hpp>
+
+#include "resources.hpp"
+
 namespace Rummage
 {
+	// Constructor
+
+	Slot::Slot() : m_tile(nullptr), m_sprite(*ResourceManager::getTexture(ResourceManager::kAtlasPath))
+	{
+		m_sprite.setTextureRect(sf::IntRect({0, 0}, {kSlotSize, kSlotSize}));
+	}
+
 	// Public functions
 
-	void Slot::drawAt(sf::RenderWindow& window, sf::Vector2f pos)
+	void Slot::draw(sf::RenderTarget& target, sf::RenderStates states) const
 	{
 		// Draw tile or slot
-		if (tile)
+		if (m_tile)
 		{
-			tile->drawAt(window, pos);
+			target.draw(*m_tile);
 		}
 		else
 		{
-			sf::RectangleShape rect(sf::Vector2f(kSlotSize, kSlotSize));
-
-			rect.setPosition(pos);
-			rect.setFillColor(sf::Color(57, 158, 57));
-
-			window.draw(rect);
+			target.draw(m_sprite);
 		}
 	}
 
-	void Slot::setTile(std::unique_ptr<Tile> tile)
+	void Slot::setPosition(sf::Vector2f pos)
 	{
-		tile = std::move(tile);
+		m_sprite.setPosition(pos);
+	}
+
+	void Slot::setTile(std::unique_ptr<Tile> tilePtr)
+	{
+		m_tile = std::move(tilePtr);
+		m_tile->setPosition(m_sprite.getPosition());
 	}
 }

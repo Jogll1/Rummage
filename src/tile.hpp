@@ -28,22 +28,24 @@ namespace Rummage
 		RANK_NONE
 	};
 
-	class Tile
+	class Tile : public sf::Drawable
 	{
 	private:
-		const Suit suit;
-		const Rank rank;
+		const Suit m_suit;
+		const Rank m_rank;
 
-		bool isMoving = false;
+		bool m_isMoving = false;
 
-		//sf::Texture texture;
+		sf::Sprite m_sprite;
 	public:
-		Tile();
-		Tile(Suit s, Rank r);
-
 		static const unsigned int kTileSize = 18;
 
-		void drawAt(sf::RenderWindow& window, sf::Vector2f pos);
+		Tile(Suit s = SUIT_NONE, Rank r = RANK_NONE);
+
+		// Public functions
+
+		virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 		void move();
+		void setPosition(sf::Vector2f pos);
 	};
 }

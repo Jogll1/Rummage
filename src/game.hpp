@@ -19,13 +19,13 @@ namespace Rummage
 
 		static const int kWindowStyle = sf::Style::Titlebar | sf::Style::Close;
 
-		sf::RenderWindow* window;
-		sf::VideoMode videoMode;
-		sf::View view;
+		sf::RenderWindow* m_window;
+		sf::VideoMode m_videoMode;
+		sf::View m_view;
 
 		// Objects
 
-		Board* board;
+		Board* m_board;
 
 		// Private functions
 
