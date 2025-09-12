@@ -5,6 +5,8 @@
 #include <SFML/Window.hpp>
 #include <SFML/Audio.hpp>
 
+#include "board.hpp"
+
 namespace Rummage 
 {
 	// Wrapper class for the game engine
@@ -12,17 +14,23 @@ namespace Rummage
 	class Game
 	{
 	private:
-		static const int kWindowWidth  = 1200;
+		static const int kWindowWidth  = 900;
 		static const int kWindowHeight = 900;
 
 		static const int kWindowStyle = sf::Style::Titlebar | sf::Style::Close;
 
 		sf::RenderWindow* window;
-		sf::VideoMode video_mode;
+		sf::VideoMode videoMode;
+		sf::View view;
+
+		// Objects
+
+		Board* board;
+
+		// Private functions
 
 		void initVariables();
 		void initWindow();
-
 	public:
 		Game();
 		virtual ~Game();
@@ -33,7 +41,7 @@ namespace Rummage
 		void update();
 		void render();
 		
-		// Accessors
+		// Getters
 
 		bool isRunning() const;
 	};

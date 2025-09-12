@@ -1,26 +1,33 @@
 #include "game.hpp"
 
+#include "board.hpp"
+
 namespace Rummage
 {
 	// Private functions
 
 	void Game::initVariables()
 	{
-		this->window = nullptr;
+		window = nullptr;
+		board = new Board(11u, 11u);
 	}
 
 	void Game::initWindow()
 	{
-		this->video_mode = sf::VideoMode({ kWindowWidth, kWindowHeight });
-		this->window = new sf::RenderWindow(this->video_mode, "Rummage", kWindowStyle);
+		videoMode = sf::VideoMode({ kWindowWidth, kWindowHeight });
+		window = new sf::RenderWindow(this->videoMode, "Rummage", kWindowStyle);
 
-		this->window->setVerticalSyncEnabled(true); // VSync
+		view = sf::View(sf::FloatRect(sf::Vector2f(), board->getSize()));
+		view.setCenter(board->getSize() / 2.f);
+		window->setView(view);
+
+		window->setVerticalSyncEnabled(true); // VSync
 		//this->window.setFramerateLimit(60);
 	}
 
 	// Constructor and Destructor
 
-	Game::Game() 
+	Game::Game()
 	{ 
 		initVariables();
 		initWindow();
@@ -28,14 +35,16 @@ namespace Rummage
 
 	Game::~Game()
 	{
-		delete this->window;
+		delete window;
+
+		delete board;
 	}
 
 	// Public functions
 
 	void Game::pollEvents()
 	{
-		while (const std::optional event = this->window->pollEvent())
+		while (const std::optional event = window->pollEvent())
 		{
 			if (event->is<sf::Event::Closed>())
 			{
@@ -53,22 +62,25 @@ namespace Rummage
 
 	void Game::update()
 	{
-		this->pollEvents();
+		pollEvents();
 	}
 
 	void Game::render()
 	{
-		this->window->clear();
+		window->clear(sf::Color(92, 214, 92));
 
-		//this->window->draw(bg_sprite);
+		if (board != nullptr)
+		{
+			board->draw(*window);
+		}
 
-		this->window->display();
+		window->display();
 	}
 
-	// Accessors
+	// Getters
 
 	bool Game::isRunning() const
 	{
-		return this->window->isOpen();
+		return window->isOpen();
 	}
 }
