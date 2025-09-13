@@ -37,6 +37,10 @@ namespace Rummage
 		{
 			slot->setTile(std::make_unique<Tile>());
 		}
+		if (Slot* slot = getSlotAt(3, 2))
+		{
+			slot->setTile(std::make_unique<Tile>());
+		}
 	}
 
 	Board::~Board() {}
@@ -74,45 +78,51 @@ namespace Rummage
 
 	void Board::handleEvents(sf::RenderWindow& window, const std::optional<sf::Event> event)
 	{
+		if (!event.has_value()) return;
+
 		sf::Vector2f mousePosView = window.mapPixelToCoords(sf::Mouse::getPosition(window));
 
-		for (Slot& slot : m_slots)
+		if (m_currentTile)
 		{
-			if (m_currentTile)
+			if (const auto* mouseButtonReleased = event->getIf<sf::Event::MouseButtonReleased>())
 			{
-				if (const auto* mouseButtonPressed = event->getIf<sf::Event::MouseButtonPressed>())
+				bool placed = false;
+				for (Slot& slot : m_slots)
 				{
-					if (mouseButtonPressed->button == sf::Mouse::Button::Right)
+					if (slot.isMouseOver(mousePosView) && !slot.hasTile())
 					{
-						// Return current tile to last slot
-						m_currentTile->setIsMoving(false);
-						m_lastSlot->setTile(std::move(m_currentTile));
-
-						continue;
-					}
-					else if (mouseButtonPressed->button == sf::Mouse::Button::Left && slot.isMouseOver(mousePosView) && !slot.hasTile())
-					{
-						// Transfer current tile to another slot
+						// Drop current tile
 						m_currentTile->setIsMoving(false);
 						slot.setTile(std::move(m_currentTile));
 						m_lastSlot = &slot;
+						placed = true;
 
-						continue;
+						break;
 					}
 				}
-			}
-			else
-			{
-				if (const auto* mouseButtonPressed = event->getIf<sf::Event::MouseButtonPressed>())
+
+				if (!placed && m_lastSlot)
 				{
-					if (mouseButtonPressed->button == sf::Mouse::Button::Left && slot.isMouseOver(mousePosView) && slot.hasTile())
+					// Return current tile to last slot if not dropped
+					m_currentTile->setIsMoving(false);
+					m_lastSlot->setTile(std::move(m_currentTile));
+				}
+			}
+		}
+		else
+		{
+			if (const auto* mouseButtonPressed = event->getIf<sf::Event::MouseButtonPressed>())
+			{
+				for (Slot& slot : m_slots)
+				{
+					if (slot.isMouseOver(mousePosView) && slot.hasTile())
 					{
-						// Take a tile from a slot
+						// Pick up tile
 						m_lastSlot = &slot;
 						m_currentTile = slot.dropTile();
 						m_currentTile->setIsMoving(true);
 
-						continue;
+						break;
 					}
 				}
 			}
