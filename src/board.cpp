@@ -3,6 +3,7 @@
 #include <SFML/Graphics.hpp>
 
 #include <memory>
+#include <iostream>
 
 #include "slot.hpp"
 #include "tile.hpp"
@@ -27,7 +28,7 @@ namespace Rummage
 					static_cast<float>(m_padding + (18 + m_gap) * y)
 				);
 
-				m_slots[y * m_tilesX + x].setPosition(pos);
+				m_slots[y * m_tilesX + x].setSlotPosition(pos);
 			}
 		}
 		
@@ -71,11 +72,78 @@ namespace Rummage
 
 	// Public functions
 
+	void Board::handleEvents(sf::RenderWindow& window, const std::optional<sf::Event> event)
+	{
+		sf::Vector2f mousePosView = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+
+		for (Slot& slot : m_slots)
+		{
+			if (m_currentTile)
+			{
+				if (const auto* mouseButtonPressed = event->getIf<sf::Event::MouseButtonPressed>())
+				{
+					if (mouseButtonPressed->button == sf::Mouse::Button::Right)
+					{
+						// Return current tile to last slot
+						m_currentTile->setIsMoving(false);
+						m_lastSlot->setTile(std::move(m_currentTile));
+
+						continue;
+					}
+					else if (mouseButtonPressed->button == sf::Mouse::Button::Left && slot.isMouseOver(mousePosView) && !slot.hasTile())
+					{
+						// Transfer current tile to another slot
+						m_currentTile->setIsMoving(false);
+						slot.setTile(std::move(m_currentTile));
+						m_lastSlot = &slot;
+
+						continue;
+					}
+				}
+			}
+			else
+			{
+				if (const auto* mouseButtonPressed = event->getIf<sf::Event::MouseButtonPressed>())
+				{
+					if (mouseButtonPressed->button == sf::Mouse::Button::Left && slot.isMouseOver(mousePosView) && slot.hasTile())
+					{
+						// Take a tile from a slot
+						m_lastSlot = &slot;
+						m_currentTile = slot.dropTile();
+						m_currentTile->setIsMoving(true);
+
+						continue;
+					}
+				}
+			}
+		}
+	}
+
+	void Board::update(sf::Vector2f mousePosView)
+	{
+		if (m_currentTile)
+		{
+			m_currentTile->update(mousePosView);
+		}
+	}
+
 	void Board::draw(sf::RenderTarget& target, sf::RenderStates states) const 
 	{
-		for (const auto& slot : m_slots)
+		// Draw slots
+		for (const Slot& slot : m_slots)
 		{
-			target.draw(slot, states);
+			target.draw(slot);
+		}
+
+		// Draw tiles
+		for (const Slot& slot : m_slots)
+		{
+			slot.drawTile(target, states);
+		}
+
+		if (m_currentTile)
+		{
+			target.draw(*m_currentTile);
 		}
 	}
 }

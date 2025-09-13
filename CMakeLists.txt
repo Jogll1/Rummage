@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 3.28)
-project(CMakeSFMLProject LANGUAGES CXX)
+project(Rummage LANGUAGES CXX)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE) # Link time optimisation
 
 include(FetchContent)
 FetchContent_Declare(SFML
@@ -12,8 +13,12 @@ FetchContent_Declare(SFML
     SYSTEM)
 FetchContent_MakeAvailable(SFML)
 
-file(GLOB SRC "src/*")
+file(GLOB_RECURSE SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/*")
 
-add_executable(main ${SRC})
-target_compile_features(main PRIVATE cxx_std_17)
-target_link_libraries(main PRIVATE SFML::Graphics)
+add_executable("${CMAKE_PROJECT_NAME}" ${SRC})
+
+# target_sources("${CMAKE_PROJECT_NAME}" PRIVATE ${SRC})
+# target_include_directories("${CMAKE_PROJECT_NAME}" PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src/*.hpp")
+
+target_compile_features("${CMAKE_PROJECT_NAME}" PRIVATE cxx_std_17)
+target_link_libraries("${CMAKE_PROJECT_NAME}" PRIVATE SFML::Graphics)

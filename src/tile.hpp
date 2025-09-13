@@ -28,6 +28,8 @@ namespace Rummage
 		RANK_NONE
 	};
 
+	class Slot; // Forward Declaration
+
 	class Tile : public sf::Drawable
 	{
 	private:
@@ -37,6 +39,7 @@ namespace Rummage
 		bool m_isMoving = false;
 
 		sf::Sprite m_sprite;
+		Slot* m_slot = nullptr;
 	public:
 		static const unsigned int kTileSize = 18;
 
@@ -44,8 +47,12 @@ namespace Rummage
 
 		// Public functions
 
+		void setMoving(bool value) { m_isMoving = value; }
+		void setParent(Slot* slot) { m_slot = slot; }
+		void setTilePosition(sf::Vector2f pos);
+		void setIsMoving(bool value);
+
+		void update(sf::Vector2f mousePosView = sf::Vector2f(0, 0)); 
 		virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
-		void move();
-		void setPosition(sf::Vector2f pos);
 	};
 }

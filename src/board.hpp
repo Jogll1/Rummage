@@ -1,10 +1,12 @@
 #pragma once
 
 #include <vector>
+#include <memory>
 
 #include <SFML/Graphics.hpp>
 
 #include "slot.hpp"
+#include "tile.hpp"
 
 namespace Rummage
 {
@@ -20,6 +22,8 @@ namespace Rummage
 		sf::Vector2f m_size;         // Size of board in pixels
 
 		std::vector<Slot> m_slots;
+		std::unique_ptr<Tile> m_currentTile = nullptr; // Only allow one tile to be moved at a time
+		Slot* m_lastSlot = nullptr;                      // Default to a slot once a move is cancelled
 	public:
 		Board(unsigned int x, unsigned int y);
 		virtual ~Board();
@@ -34,6 +38,8 @@ namespace Rummage
 
 		// Public functions
 
+		void handleEvents(sf::RenderWindow& window, const std::optional<sf::Event> event);
+		void update(sf::Vector2f mousePosView);
 		virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 	};
 }

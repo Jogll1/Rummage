@@ -1,5 +1,7 @@
 #include "game.hpp"
 
+#include <iostream>
+
 #include "board.hpp"
 
 namespace Rummage
@@ -51,17 +53,25 @@ namespace Rummage
 			}
 			else if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>())
 			{
-				if (keyPressed->scancode == sf::Keyboard::Scancode::Escape)
+				switch (keyPressed->scancode)
 				{
-					m_window->close();
+					case sf::Keyboard::Scancode::Escape:
+						m_window->close();
+						break;
+					default: break;
 				}
 			}
+
+			m_board->handleEvents(*m_window, event);
 		}
 	}
 
 	void Game::update()
 	{
 		pollEvents();
+
+		sf::Vector2f mousePosView = m_window->mapPixelToCoords(sf::Mouse::getPosition(*m_window));
+		m_board->update(mousePosView);
 	}
 
 	void Game::render()
