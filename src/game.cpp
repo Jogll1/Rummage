@@ -4,6 +4,7 @@
 #include <time.h>
 
 #include "board.hpp"
+#include "utils.hpp"
 
 namespace Rummage
 {
@@ -12,7 +13,10 @@ namespace Rummage
 	void Game::initVariables()
 	{
 		m_window = nullptr;
+
+		// Create a new centered board
 		m_board = new Board(11u, 11u);
+		m_board->setPos({ kInitWindowWidth / 2 - m_board->getSize().x / 2, kInitWindowHeight / 2 - m_board->getSize().y / 2 });
 	}
 
 	void Game::initWindow()
@@ -20,41 +24,44 @@ namespace Rummage
 		m_videoMode = sf::VideoMode({ kInitWindowWidth, kInitWindowHeight });
 		m_window = new sf::RenderWindow(m_videoMode, "Rummage", kWindowStyle);
 
-		m_view = sf::View(sf::FloatRect(sf::Vector2f(), m_board->getSize()));
-		m_view.setCenter(m_board->getSize() / 2.f);
-		m_window->setView(m_view);
+		// Set the view to centre on the board
+		resizeView(kInitWindowWidth, kInitWindowHeight);
 
+		// Set FPS
 		m_window->setVerticalSyncEnabled(true); // VSync
 		//this->window.setFramerateLimit(60);
-
-		resizeView(kInitWindowWidth, kInitWindowHeight);
 	}
 
 	void Game::resizeView(int windowWidth, int windowHeight)
 	{
-		float windowRatio = (float)windowWidth / (float)windowHeight;
-		float viewRatio = m_view.getSize().x / m_view.getSize().y;
+		// Make view fit the game board in while keeping the board's aspect
+		// Only works when the board is a square
 
-		float sizeX = 1.0f, sizeY = 1.0f;
-		float posX = 0, posY = 0;
+		float windowRatio = static_cast<float>(windowWidth) / static_cast<float>(windowHeight);
 
-		if (windowRatio > viewRatio)
+		float width = m_board->getSize().x;
+		float height = m_board->getSize().y;
+
+		if (windowRatio >= 1)
 		{
-			// Horizontal letterboxing
-			sizeX = viewRatio / windowRatio;
-			posX = (1.0f - sizeX) / 2.0f;
+			// Width changes
+			width *= windowRatio;
+			width = std::floor(width);
 		}
 		else
 		{
-			// Vertical letterboxing
-			sizeY = windowRatio / viewRatio;
-			posY = (1.0f - sizeY) / 2.0f;
+			// Height changes
+			height /= windowRatio;
+			height = std::floor(height);
 		}
 
-		std::cout << "PosX: " << posX << ", PosY: " << posY << "\n";
-		std::cout << "SizeX: " << sizeX << ", SizeY: " << sizeY << "\n";
+		m_view.setSize({ width, height });
 
-		m_view.setViewport(sf::FloatRect({ posX, posY }, { sizeX, sizeY }));
+		sf::Vector2f center = m_board->getCentrePos();
+		center.x = std::floor(center.x) + 0.5f;
+		center.y = std::floor(center.y) + 0.5f;
+		m_view.setCenter(center);
+
 		m_window->setView(m_view);
 	}
 
@@ -115,12 +122,12 @@ namespace Rummage
 
 	void Game::render()
 	{
-		m_window->clear(/*sf::Color(92, 214, 92)*/);
+		m_window->clear(sf::Color(92, 214, 92));
 
 		// Draw background
-		sf::RectangleShape background(sf::Vector2f(m_view.getSize().x, m_view.getSize().y));
+		/*sf::RectangleShape background(sf::Vector2f(m_view.getSize().x, m_view.getSize().y));
 		background.setFillColor(sf::Color(92, 214, 92));
-		m_window->draw(background);
+		m_window->draw(background);*/
 
 		// Draw board
 		if (m_board)

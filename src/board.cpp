@@ -10,27 +10,33 @@
 
 namespace Rummage
 {
-	Board::Board(unsigned int x, unsigned int y) : m_tilesX(x), m_tilesY(y), m_slots(x * y)
+	void Board::setBoardPositions()
 	{
-		// Width:  paddingL + (tile width + gapX) * tilesX - gapX + paddingR
-		// Height: paddingT + (tile height + gapY) * tilesY - gapY + paddingB
-
-		m_size = sf::Vector2f(
-			static_cast<float>(m_padding + (18 + m_gap) * m_tilesX - m_gap + m_padding),
-			static_cast<float>(m_padding + (18 + m_gap) * m_tilesY - m_gap + m_padding)
-		);
-
 		// Position each slot
 		for (unsigned int y = 0; y < m_tilesY; y++) {
 			for (unsigned int x = 0; x < m_tilesX; x++) {
 				sf::Vector2f pos = sf::Vector2f(
-					static_cast<float>(m_padding + (18 + m_gap) * x),
-					static_cast<float>(m_padding + (18 + m_gap) * y)
+					static_cast<float>(m_pos.x + m_paddingL + (Tile::kTileSize + m_gap) * x),
+					static_cast<float>(m_pos.y + m_paddingT + (Tile::kTileSize + m_gap) * y)
 				);
 
 				m_slots[y * m_tilesX + x].setSlotPosition(pos);
 			}
 		}
+	}
+
+	Board::Board(unsigned int tilesX, unsigned int tilesY, sf::Vector2f pos)
+		: m_tilesX(tilesX), m_tilesY(tilesY), m_pos(pos), m_slots(tilesX* tilesY)
+	{
+		// Width:  paddingL + (tile width + gapX) * tilesX - gapX + paddingR
+		// Height: paddingT + (tile height + gapY) * tilesY - gapY + paddingB
+
+		m_size = sf::Vector2f(
+			static_cast<float>(m_paddingL + (Tile::kTileSize + m_gap) * m_tilesX - m_gap + m_paddingR),
+			static_cast<float>(m_paddingT + (Tile::kTileSize + m_gap) * m_tilesY - m_gap + m_paddingB)
+		);
+
+		setBoardPositions();
 		
 		// Test
 		for (int i = 0; i < 24; i++)
@@ -46,21 +52,6 @@ namespace Rummage
 
 	// Getters
 
-	unsigned int Board::getTilesX() const
-	{
-		return m_tilesX;
-	}
-
-	unsigned int Board::getTilesY() const
-	{
-		return m_tilesY;
-	}
-
-	sf::Vector2f Board::getSize() const
-	{
-		return m_size;
-	}
-
 	// Get the slot on the board at (x, y).
 	// Returns nullptr for invalid slots.
 	Slot* Board::getSlotAt(unsigned int x, unsigned int y)
@@ -71,6 +62,14 @@ namespace Rummage
 		}
 
 		return nullptr;
+	}
+
+	// Setters
+
+	void Board::setPos(sf::Vector2f newPos)
+	{
+		m_pos = newPos; 
+		setBoardPositions();
 	}
 
 	// Public functions

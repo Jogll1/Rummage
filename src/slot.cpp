@@ -29,6 +29,11 @@ namespace Rummage
 	void Slot::setSlotPosition(sf::Vector2f pos)
 	{
 		m_sprite.setPosition(pos);
+
+		if (m_tile)
+		{
+			m_tile->setTilePosition(pos);
+		}
 	}
 
 	void Slot::setTile(std::unique_ptr<Tile> tilePtr)
