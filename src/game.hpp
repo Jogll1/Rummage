@@ -14,10 +14,10 @@ namespace Rummage
 	class Game
 	{
 	private:
-		static const int kWindowWidth  = 900;
-		static const int kWindowHeight = 900;
+		static const unsigned int kInitWindowWidth  = 1200u;
+		static const unsigned int kInitWindowHeight = 900u;
 
-		static const int kWindowStyle = sf::Style::Titlebar | sf::Style::Close;
+		static const int kWindowStyle = sf::Style::Titlebar | sf::Style::Close | sf::Style::Resize;
 
 		sf::RenderWindow* m_window;
 		sf::VideoMode m_videoMode;
@@ -31,6 +31,8 @@ namespace Rummage
 
 		void initVariables();
 		void initWindow();
+
+		void resizeView(int windowWidth, int windowHeight);
 	public:
 		Game();
 		virtual ~Game();

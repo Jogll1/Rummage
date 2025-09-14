@@ -33,13 +33,12 @@ namespace Rummage
 		}
 		
 		// Test
-		if (Slot* slot = getSlotAt(1, 0))
+		for (int i = 0; i < 24; i++)
 		{
-			slot->setTile(std::make_unique<Tile>());
-		}
-		if (Slot* slot = getSlotAt(3, 2))
-		{
-			slot->setTile(std::make_unique<Tile>());
+			if (Slot* slot = getSlotAt(rand() % m_tilesX, rand() % m_tilesY))
+			{
+				slot->setTile(std::make_unique<Tile>(Tile::getRandomSuit(), Tile::getRandomRank()));
+			}
 		}
 	}
 
@@ -89,14 +88,25 @@ namespace Rummage
 				bool placed = false;
 				for (Slot& slot : m_slots)
 				{
-					if (slot.isMouseOver(mousePosView) && !slot.hasTile())
+					if (slot.isMouseOver(mousePosView))
 					{
-						// Drop current tile
-						m_currentTile->setIsMoving(false);
-						slot.setTile(std::move(m_currentTile));
+						if (slot.hasTile())
+						{
+							// Swap tiles at that slot
+							m_currentTile->setIsMoving(false);
+							std::unique_ptr<Tile> temp = slot.dropTile();
+							slot.setTile(std::move(m_currentTile));
+							m_lastSlot->setTile(std::move(temp));
+						}
+						else
+						{
+							// Drop current tile into new slot
+							m_currentTile->setIsMoving(false);
+							slot.setTile(std::move(m_currentTile));
+						}
+
 						m_lastSlot = &slot;
 						placed = true;
-
 						break;
 					}
 				}

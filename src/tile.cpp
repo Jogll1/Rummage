@@ -9,7 +9,33 @@ namespace Rummage
 	Tile::Tile(Suit s, Rank r) : m_suit(s), m_rank(r), m_sprite(*ResourceManager::getTexture(ResourceManager::kAtlasPath))
 	{
 		m_isMoving = false;
-		m_sprite.setTextureRect(sf::IntRect({ 3 * kTileSize, 0 }, { kTileSize, kTileSize }));
+
+		// Set texture based on suit and rank
+		int texX = 0;
+		int texY = 0;
+
+		if (m_suit == SUIT_NONE)
+		{
+			texX = 3 * kTileSize;
+		}
+		else
+		{
+			texX = m_rank * kTileSize;
+			texY = (1 + m_suit) * kTileSize;
+		}
+
+		m_sprite.setTextureRect(sf::IntRect({ texX, texY }, { kTileSize, kTileSize }));
+	}
+
+	Suit Tile::getRandomSuit()
+	{
+		// Can't be none
+		return Suit(rand() % 5 + 1);
+	}
+
+	Rank Tile::getRandomRank()
+	{
+		return Rank(rand() % 13);
 	}
 
 	// Public functions

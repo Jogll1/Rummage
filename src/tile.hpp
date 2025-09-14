@@ -5,27 +5,27 @@
 namespace Rummage 
 {
 	enum Suit {
-		SUIT_SUN,
-		SUIT_MOON,
-		SUIT_VENUS,
-		SUIT_MARS,
-		SUIT_NONE
+		SUIT_NONE = 0,
+		SUIT_GOLD = 1,
+		SUIT_SILVER = 2,
+		SUIT_COPPER = 3,
+		SUIT_IRON = 4,
 	};
 
 	enum Rank {
-		RANK_A,
-		RANK_2,
-		RANK_3,
-		RANK_4,
-		RANK_5,
-		RANK_6,
-		RANK_7,
-		RANK_8,
-		RANK_9,
-		RANK_J,
-		RANK_Q,
-		RANK_K,
-		RANK_NONE
+		RANK_NONE = 0,
+		RANK_A = 1,
+		RANK_2 = 2,
+		RANK_3 = 3,
+		RANK_4 = 4,
+		RANK_5 = 5,
+		RANK_6 = 6,
+		RANK_7 = 7,
+		RANK_8 = 8,
+		RANK_9 = 9,
+		RANK_J = 10,
+		RANK_Q = 11,
+		RANK_K = 12,
 	};
 
 	class Slot; // Forward Declaration
@@ -46,6 +46,9 @@ namespace Rummage
 		Tile(Suit s = SUIT_NONE, Rank r = RANK_NONE);
 
 		// Public functions
+
+		static Suit getRandomSuit();
+		static Rank getRandomRank();
 
 		void setMoving(bool value) { m_isMoving = value; }
 		void setParent(Slot* slot) { m_slot = slot; }
