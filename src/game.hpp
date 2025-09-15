@@ -42,8 +42,6 @@ namespace Rummage
 		sf::Vector2f getGameWorldCentre() const { return WorldObject::getBoundingBoxCentre({ *m_board, *m_hand }); }
 		sf::Vector2f getMousePosView() const { return m_window->mapPixelToCoords(sf::Mouse::getPosition(*m_window)); }
 
-		bool pickupTileFromSlot(Slot& slot, sf::Vector2f mousePosView);
-
 		void handleDragAndDrop(const std::optional<sf::Event> event);
 		void pollEvents();
 

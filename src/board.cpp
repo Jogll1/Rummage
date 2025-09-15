@@ -50,7 +50,7 @@ namespace Rummage
 	{
 		if (y >= 0 && y < m_tilesY && x >= 0 && x < m_tilesX)
 		{
-			return &m_slots[y * m_tilesX + x];
+			return &m_slots.at(y * m_tilesX + x);
 		}
 
 		return nullptr;
@@ -77,9 +77,12 @@ namespace Rummage
 
 	// Public functions
 
-	void Board::update(sf::Vector2f mousePosView)
+	void Board::update(sf::Vector2f mousePosView, bool hasCurrentTile)
 	{
-		
+		for (Slot& slot : m_slots)
+		{
+			slot.setOutline(slot.isMouseOver(mousePosView) && hasCurrentTile);
+		}
 	}
 
 	void Board::draw(sf::RenderTarget& target, sf::RenderStates states) const 
@@ -90,7 +93,7 @@ namespace Rummage
 			target.draw(slot);
 		}
 
-		// Draw tiles
+		// Draw tiles in slots
 		for (const Slot& slot : m_slots)
 		{
 			slot.drawTile(target, states);

@@ -11,9 +11,12 @@ namespace Rummage
 	class Slot : public sf::Drawable
 	{
 	private:
-		std::unique_ptr<Tile> m_tile;
+		sf::Shader* m_outlineShader;
 
+		std::unique_ptr<Tile> m_tile;
 		sf::Sprite m_sprite;
+
+		bool m_drawOutline = false;
 	public:
 		Slot();
 		~Slot() = default;
@@ -22,7 +25,7 @@ namespace Rummage
 
 		// Accessors
 
-		sf::Vector2f getPosition() const;
+		sf::Vector2f getPosition() const { return m_sprite.getPosition(); }
 		bool hasTile() const { return m_tile != nullptr; }
 
 		// Public functions
@@ -32,6 +35,7 @@ namespace Rummage
 
 		void setTile(std::unique_ptr<Tile> tilePtr);
 		std::unique_ptr<Tile> dropTile();
+		void setOutline(bool value) { m_drawOutline = value; }
 		void drawTile(sf::RenderTarget& target, sf::RenderStates states) const;
 
 		void update(sf::Vector2f mousePosView);

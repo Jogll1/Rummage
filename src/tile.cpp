@@ -16,15 +16,15 @@ namespace Rummage
 
 		if (m_suit == SUIT_NONE)
 		{
-			texX = 3 * kTileSize;
+			texX = 3 * (kTileSize + 4);
 		}
 		else
 		{
-			texX = m_rank * kTileSize;
-			texY = (1 + m_suit) * kTileSize;
+			texX = m_rank * (kTileSize + 4);
+			texY = m_suit * (kTileSize + 4);
 		}
 
-		m_sprite.setTextureRect(sf::IntRect({ texX, texY }, { kTileSize, kTileSize }));
+		m_sprite.setTextureRect(sf::IntRect({ texX, texY }, { (kTileSize + 4), (kTileSize + 4) }));
 	}
 
 	// Public functions

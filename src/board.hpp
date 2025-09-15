@@ -30,7 +30,7 @@ namespace Rummage
 
 		std::vector<Slot> m_slots;
 	public:
-		Board(unsigned int tilesX, unsigned int tilesY, Padding padding = { 18, 18, 18, 18},
+		Board(unsigned int tilesX, unsigned int tilesY, Padding padding = { 10, 10, 10, 10 },
 			  unsigned int gap = 2, sf::Vector2f pos = {0, 0}
 		);
 		virtual ~Board();
@@ -49,7 +49,7 @@ namespace Rummage
 
 		// Public functions
 
-		void update(sf::Vector2f mousePosView);
+		void update(sf::Vector2f mousePosView, bool hasCurrentTile);
 		virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 	};
 }

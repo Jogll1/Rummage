@@ -6,6 +6,7 @@
 
 #include "board.hpp"
 #include "utils.hpp"
+#include "resources.hpp"
 
 namespace Rummage
 {
@@ -17,7 +18,9 @@ namespace Rummage
 
 		// Create and position new board and hand
 		m_board = std::make_unique<Board>(11u, 11u);
-		m_hand = std::make_unique<Board>(11u, 2u);
+
+		Padding pad = { 10, 10, 10, 10 };
+		m_hand = std::make_unique<Board>(11u, 2u, pad);
 
 		//m_board->setPos({ kInitWindowWidth / 2 - m_board->getSize().x / 2, kInitWindowHeight / 2 - m_board->getSize().y / 2 });
 		m_hand->setPos({ 0, m_board->getSize().y });
@@ -184,6 +187,14 @@ namespace Rummage
 	{ 
 		srand(time(NULL));
 
+		// Preload resources
+		if (sf::Shader::isAvailable())
+		{
+			ResourceManager::preLoadShaders();
+		}
+
+		ResourceManager::preLoadTextures();
+
 		initVariables();
 		initWindow();
 	}
@@ -200,6 +211,9 @@ namespace Rummage
 		pollEvents();
 
 		sf::Vector2f mousePosView = m_window->mapPixelToCoords(sf::Mouse::getPosition(*m_window));
+
+		m_board->update(mousePosView, m_currentTile != nullptr);
+		m_hand->update(mousePosView, m_currentTile != nullptr);
 
 		// Update dragged tile position
 		if (m_currentTile)
