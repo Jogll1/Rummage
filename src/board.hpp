@@ -16,7 +16,7 @@ namespace Rummage
 		unsigned int m_paddingL = 16; // Padding in pixels
 		unsigned int m_paddingR = 16; 
 		unsigned int m_paddingT = 16; 
-		unsigned int m_paddingB = 16; 
+		unsigned int m_paddingB = 72; 
 		unsigned int m_gap = 2;       // Gap in pixels
 
 		unsigned int m_tilesX;       // How many rows of tiles

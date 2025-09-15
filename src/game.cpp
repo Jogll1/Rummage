@@ -34,24 +34,24 @@ namespace Rummage
 
 	void Game::resizeView(int windowWidth, int windowHeight)
 	{
-		// Make view fit the game board in while keeping the board's aspect
-		// Only works when the board is a square
+		// Make view fit the game board while keeping the board's aspect
 
 		float windowRatio = static_cast<float>(windowWidth) / static_cast<float>(windowHeight);
+		float boardRatio = m_board->getSize().x / m_board->getSize().y;
 
 		float width = m_board->getSize().x;
 		float height = m_board->getSize().y;
 
-		if (windowRatio >= 1)
+		if (windowRatio >= boardRatio)
 		{
-			// Width changes
-			width *= windowRatio;
+			// Height match
+			width = height * windowRatio;
 			width = std::floor(width);
-		}
+		}	
 		else
 		{
-			// Height changes
-			height /= windowRatio;
+			// Width match
+			height = width / windowRatio;
 			height = std::floor(height);
 		}
 
