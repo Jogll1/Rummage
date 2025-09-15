@@ -10,33 +10,20 @@
 
 namespace Rummage
 {
-	void Board::setBoardPositions()
-	{
-		// Position each slot
-		for (unsigned int y = 0; y < m_tilesY; y++) {
-			for (unsigned int x = 0; x < m_tilesX; x++) {
-				sf::Vector2f pos = sf::Vector2f(
-					static_cast<float>(m_pos.x + m_paddingL + (Tile::kTileSize + m_gap) * x),
-					static_cast<float>(m_pos.y + m_paddingT + (Tile::kTileSize + m_gap) * y)
-				);
+	// Constructor and Destructor
 
-				m_slots[y * m_tilesX + x].setSlotPosition(pos);
-			}
-		}
-	}
-
-	Board::Board(unsigned int tilesX, unsigned int tilesY, sf::Vector2f pos)
-		: m_tilesX(tilesX), m_tilesY(tilesY), m_pos(pos), m_slots(tilesX* tilesY)
+	Board::Board(unsigned int tilesX, unsigned int tilesY, Padding padding, unsigned int gap, sf::Vector2f pos)
+		: m_tilesX(tilesX), m_tilesY(tilesY), m_padding(padding), m_gap(gap), m_slots(tilesX* tilesY)
 	{
 		// Width:  paddingL + (tile width + gapX) * tilesX - gapX + paddingR
 		// Height: paddingT + (tile height + gapY) * tilesY - gapY + paddingB
 
-		m_size = sf::Vector2f(
-			static_cast<float>(m_paddingL + (Tile::kTileSize + m_gap) * m_tilesX - m_gap + m_paddingR),
-			static_cast<float>(m_paddingT + (Tile::kTileSize + m_gap) * m_tilesY - m_gap + m_paddingB)
-		);
+		setPos(pos);
 
-		setBoardPositions();
+		m_size = sf::Vector2f(
+			static_cast<float>(m_padding.l + (Tile::kTileSize + m_gap) * m_tilesX - m_gap + m_padding.r),
+			static_cast<float>(m_padding.t + (Tile::kTileSize + m_gap) * m_tilesY - m_gap + m_padding.b)
+		);
 		
 		// Test
 		for (int i = 0; i < 24; i++)
@@ -51,6 +38,11 @@ namespace Rummage
 	Board::~Board() {}
 
 	// Getters
+
+	std::vector<Slot>* Board::getSlots()
+	{
+		return &m_slots;
+	}
 
 	// Get the slot on the board at (x, y).
 	// Returns nullptr for invalid slots.
@@ -69,81 +61,25 @@ namespace Rummage
 	void Board::setPos(sf::Vector2f newPos)
 	{
 		m_pos = newPos; 
-		setBoardPositions();
+		
+		// Position each slot
+		for (unsigned int y = 0; y < m_tilesY; y++) {
+			for (unsigned int x = 0; x < m_tilesX; x++) {
+				sf::Vector2f pos = sf::Vector2f(
+					static_cast<float>(m_pos.x + m_padding.l + (Tile::kTileSize + m_gap) * x),
+					static_cast<float>(m_pos.y + m_padding.t + (Tile::kTileSize + m_gap) * y)
+				);
+
+				m_slots[y * m_tilesX + x].setSlotPosition(pos);
+			}
+		}
 	}
 
 	// Public functions
 
-	void Board::handleEvents(sf::RenderWindow& window, const std::optional<sf::Event> event)
-	{
-		if (!event.has_value()) return;
-
-		sf::Vector2f mousePosView = window.mapPixelToCoords(sf::Mouse::getPosition(window));
-
-		if (m_currentTile)
-		{
-			if (const auto* mouseButtonReleased = event->getIf<sf::Event::MouseButtonReleased>())
-			{
-				bool placed = false;
-				for (Slot& slot : m_slots)
-				{
-					if (slot.isMouseOver(mousePosView))
-					{
-						if (slot.hasTile())
-						{
-							// Swap tiles at that slot
-							m_currentTile->setIsMoving(false);
-							std::unique_ptr<Tile> temp = slot.dropTile();
-							slot.setTile(std::move(m_currentTile));
-							m_lastSlot->setTile(std::move(temp));
-						}
-						else
-						{
-							// Drop current tile into new slot
-							m_currentTile->setIsMoving(false);
-							slot.setTile(std::move(m_currentTile));
-						}
-
-						m_lastSlot = &slot;
-						placed = true;
-						break;
-					}
-				}
-
-				if (!placed && m_lastSlot)
-				{
-					// Return current tile to last slot if not dropped
-					m_currentTile->setIsMoving(false);
-					m_lastSlot->setTile(std::move(m_currentTile));
-				}
-			}
-		}
-		else
-		{
-			if (const auto* mouseButtonPressed = event->getIf<sf::Event::MouseButtonPressed>())
-			{
-				for (Slot& slot : m_slots)
-				{
-					if (slot.isMouseOver(mousePosView) && slot.hasTile())
-					{
-						// Pick up tile
-						m_lastSlot = &slot;
-						m_currentTile = slot.dropTile();
-						m_currentTile->setIsMoving(true);
-
-						break;
-					}
-				}
-			}
-		}
-	}
-
 	void Board::update(sf::Vector2f mousePosView)
 	{
-		if (m_currentTile)
-		{
-			m_currentTile->update(mousePosView);
-		}
+		
 	}
 
 	void Board::draw(sf::RenderTarget& target, sf::RenderStates states) const 
@@ -158,11 +94,6 @@ namespace Rummage
 		for (const Slot& slot : m_slots)
 		{
 			slot.drawTile(target, states);
-		}
-
-		if (m_currentTile)
-		{
-			target.draw(*m_currentTile);
 		}
 	}
 }

@@ -4,10 +4,10 @@
 
 #include <SFML/Graphics.hpp>
 
+#include "tile.hpp"
+
 namespace Rummage
 {
-	class Tile; // Forward declaration
-
 	class Slot : public sf::Drawable
 	{
 	private:

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory>
+
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 #include <SFML/Window.hpp>
@@ -23,14 +25,27 @@ namespace Rummage
 		sf::VideoMode m_videoMode;
 		sf::View m_view;
 
-		// Objects
+		// Game objects
 
-		Board* m_board;
+		std::unique_ptr<Board> m_board; // Where tiles will be played to
+		std::unique_ptr<Board> m_hand;  // Where tiles will be played from
+
+		std::unique_ptr<Tile> m_currentTile = nullptr; // Only allow one tile to be moved at a time
+		Slot* m_lastSlot = nullptr;                     // Default to a slot once a move is cancelled
 
 		// Private functions
 
 		void initVariables();
 		void initWindow();
+
+		sf::Vector2f getGameWorldSize() const { return WorldObject::getBoundingBoxSize({ *m_board, *m_hand }); }
+		sf::Vector2f getGameWorldCentre() const { return WorldObject::getBoundingBoxCentre({ *m_board, *m_hand }); }
+		sf::Vector2f getMousePosView() const { return m_window->mapPixelToCoords(sf::Mouse::getPosition(*m_window)); }
+
+		bool pickupTileFromSlot(Slot& slot, sf::Vector2f mousePosView);
+
+		void handleDragAndDrop(const std::optional<sf::Event> event);
+		void pollEvents();
 
 		void resizeView(int windowWidth, int windowHeight);
 	public:
@@ -39,7 +54,6 @@ namespace Rummage
 
 		// Public functions
 		
-		void pollEvents();
 		void update();
 		void render();
 		

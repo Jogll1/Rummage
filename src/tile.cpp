@@ -27,28 +27,7 @@ namespace Rummage
 		m_sprite.setTextureRect(sf::IntRect({ texX, texY }, { kTileSize, kTileSize }));
 	}
 
-	Suit Tile::getRandomSuit()
-	{
-		// Can't be none
-		return Suit(rand() % 5 + 1);
-	}
-
-	Rank Tile::getRandomRank()
-	{
-		return Rank(rand() % 13);
-	}
-
 	// Public functions
-
-	void Tile::setTilePosition(sf::Vector2f pos)
-	{
-		m_sprite.setPosition(pos);
-	}
-
-	void Tile::setIsMoving(bool value)
-	{
-		m_isMoving = value;
-	}
 
 	void Tile::update(sf::Vector2f mousePosView)
 	{

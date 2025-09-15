@@ -40,7 +40,6 @@ namespace Rummage
 	{
 		m_tile = std::move(tilePtr);
 		m_tile->setTilePosition(m_sprite.getPosition());
-		m_tile->setParent(this);
 	}
 
 	bool Slot::isMouseOver(sf::Vector2f mousePosView) const
@@ -52,7 +51,6 @@ namespace Rummage
 	{
 		if (m_tile)
 		{
-			m_tile->setParent(nullptr);
 			return std::move(m_tile);
 		}
 
