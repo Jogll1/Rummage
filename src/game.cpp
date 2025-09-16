@@ -122,25 +122,52 @@ namespace Rummage
 					m_lastSlot->setTile(std::move(m_currentTile));
 				}
 			}
+
+			if (const auto* mouseButtonPressed = event->getIf<sf::Event::MouseButtonPressed>())
+			{
+				if (mouseButtonPressed->button == sf::Mouse::Button::Right)
+				{
+					// If right click, cancel move
+					m_lastSlot->setTile(std::move(m_currentTile));
+				}
+			}
 		}
 		else
 		{
 			if (const auto* mouseButtonPressed = event->getIf<sf::Event::MouseButtonPressed>())
 			{
-				// For the slots in m_board and m_hand, pickup tile
-				// if mouse is pressed and slot has a tile
-				for (auto& slots : { m_board->getSlots(), m_hand->getSlots() })
+				if (mouseButtonPressed->button == sf::Mouse::Button::Left)
 				{
-					for (Slot& slot : *slots)
+					// For the slots in m_board and m_hand, pickup tile
+					// if mouse is pressed and slot has a tile
+					for (auto& slots : { m_board->getSlots(), m_hand->getSlots() })
 					{
-						if (slot.isMouseOver(mousePosView) && slot.hasTile())
+						for (Slot& slot : *slots)
 						{
-							// Pickup tile
-							m_lastSlot = &slot;
-							m_currentTile = slot.dropTile();
-							m_currentTile->setIsMoving(true);
+							if (slot.isMouseOver(mousePosView) && slot.hasTile())
+							{
+								// Pickup tile
+								m_lastSlot = &slot;
+								m_currentTile = slot.dropTile();
+								m_currentTile->setIsMoving(true);
 
-							break;
+								break;
+							}
+						}
+					}
+				}
+
+				if (mouseButtonPressed->button == sf::Mouse::Button::Right)
+				{
+					// Send back to hand if tile is on the board
+					if (!m_hand->isFull())
+					{
+						for (auto& slot : *m_board->getSlots())
+						{
+							if (slot.isMouseOver(mousePosView) && slot.hasTile())
+							{
+								m_hand->sendTileToFirstSlot(std::move(slot.dropTile()));
+							}
 						}
 					}
 				}

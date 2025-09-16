@@ -81,17 +81,27 @@ namespace Rummage
 		return true;
 	}
 
-	void Board::drawTileFromDeck(std::vector<std::unique_ptr<Tile>>& deck)
+	void Board::sendTileToFirstSlot(std::unique_ptr<Tile> tile)
 	{
-		for (Slot& slot : m_slots)
+		if (tile)
 		{
-			if (!slot.hasTile() && !deck.empty())
+			for (Slot& slot : m_slots)
 			{
-				slot.setTile(std::move(deck.back()));
-				deck.pop_back();
-				return;
+				if (!slot.hasTile())
+				{
+					slot.setTile(std::move(tile));
+					return;
+				}
 			}
 		}
+	}
+
+	void Board::drawTileFromDeck(std::vector<std::unique_ptr<Tile>>& deck)
+	{
+		if (deck.empty()) return;
+
+		sendTileToFirstSlot(std::move(deck.back()));
+		deck.pop_back();
 	}
 
 	void Board::update(sf::Vector2f mousePosView, bool hasCurrentTile)

@@ -50,6 +50,7 @@ namespace Rummage
 		// Public functions
 
 		bool isFull();
+		void sendTileToFirstSlot(std::unique_ptr<Tile> tile);
 		void drawTileFromDeck(std::vector<std::unique_ptr<Tile>>& deck);
 
 		void update(sf::Vector2f mousePosView, bool hasCurrentTile);
