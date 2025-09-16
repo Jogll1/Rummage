@@ -46,6 +46,8 @@ namespace Rummage
 
 		// Public functions
 
+		static std::unique_ptr<Tile> createTile(Suit s, Rank r) { return std::move(std::make_unique<Tile>(s, r)); }
+
 		// Getters
 
 		static Suit getRandomSuit() { return Suit(rand() % 4 + 1); }

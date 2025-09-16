@@ -54,14 +54,12 @@ namespace Rummage
 				// Rank
 				for (int r = RANK_A; r < RANK_MAX; r++)
 				{
-					std::unique_ptr<Tile> tile = std::make_unique<Tile>(static_cast<Suit>(s), static_cast<Rank>(r));
-					m_deck.push_back(std::move(tile));
+					m_deck.push_back(Tile::createTile(static_cast<Suit>(s), static_cast<Rank>(r)));
 				}
 			}
 
 			// Joker
-			std::unique_ptr<Tile> tile = std::make_unique<Tile>(SUIT_NONE, RANK_NONE);
-			m_deck.push_back(std::move(tile));
+			m_deck.push_back(Tile::createTile(SUIT_NONE, RANK_NONE));
 		}
 
 		// Shuffle the elements
@@ -191,37 +189,16 @@ namespace Rummage
 
 	void Game::resizeView(int windowWidth, int windowHeight)
 	{
-		// Idea: check setting viewport to the correct size of the screen fixes pixel scaling problems
+		// Make view fit the game board while keeping the board's aspect and an integer scaling
 
-		// Make view fit the game board while keeping the board's aspect
+		// Calculate view size based on integer scale
+		int scale = std::max(1.f, std::min(windowWidth / getGameWorldSize().x, windowHeight / getGameWorldSize().y));
 
-		sf::Vector2f gameWorldSize = getGameWorldSize();
+		float viewWidth = std::floor(static_cast<float>(windowWidth) / scale);
+		float viewHeight = std::floor(static_cast<float>(windowHeight) / scale);
 
-		float windowRatio = static_cast<float>(windowWidth) / static_cast<float>(windowHeight);
-		float worldRatio = gameWorldSize.x / gameWorldSize.y;
-
-		float width = gameWorldSize.x;
-		float height = gameWorldSize.y;
-
-		if (windowRatio >= worldRatio)
-		{
-			// Height match
-			width = height * windowRatio;
-			width = std::floor(width);
-		}	
-		else
-		{
-			// Width match
-			height = width / windowRatio;
-			height = std::floor(height);
-		}
-
-		m_view.setSize({ width, height });
-
-		sf::Vector2f center = getGameWorldCentre();
-		center.x = std::floor(center.x) + 0.5f;
-		center.y = std::floor(center.y) + 0.5f;
-		m_view.setCenter(center);
+		m_view.setSize({ viewWidth, viewHeight });
+		m_view.setCenter({ std::floor(getGameWorldCentre().x), std::floor(getGameWorldCentre().y) });
 
 		m_window->setView(m_view);
 	}

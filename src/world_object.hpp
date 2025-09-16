@@ -31,9 +31,6 @@ namespace Rummage
 
 		// Static utility methods
 
-		// TODO: getBoundingBoxSize is not correct 
-		// for example if a larger box is on top of a smaller box
-
 		// Get the bounding box size vector of a list of WorldObjects.
 		static sf::Vector2f getBoundingBoxSize(std::vector<WorldObject> objs)
 		{
