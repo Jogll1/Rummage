@@ -4,15 +4,16 @@
 
 namespace Rummage 
 {
-	enum Suit {
+	enum Suit : uint8_t {
 		SUIT_NONE = 0,
 		SUIT_GOLD = 1,
 		SUIT_SILVER = 2,
 		SUIT_COPPER = 3,
 		SUIT_IRON = 4,
+		SUIT_MAX = 5
 	};
 
-	enum Rank {
+	enum Rank : uint8_t {
 		RANK_NONE = 0,
 		RANK_A = 1,
 		RANK_2 = 2,
@@ -26,6 +27,7 @@ namespace Rummage
 		RANK_J = 10,
 		RANK_Q = 11,
 		RANK_K = 12,
+		RANK_MAX = 13
 	};
 
 	class Tile : public sf::Drawable
@@ -44,8 +46,15 @@ namespace Rummage
 
 		// Public functions
 
-		static Suit getRandomSuit() { return Suit(rand() % 5 + 1); }
-		static Rank getRandomRank() { return Rank(rand() % 13); }
+		// Getters
+
+		static Suit getRandomSuit() { return Suit(rand() % 4 + 1); }
+		static Rank getRandomRank() { return Rank(rand() % RANK_MAX); }
+
+		const Suit getSuit() const { return m_suit; }
+		const Rank getRank() const { return m_rank; }
+
+		// Setters
 
 		void setMoving(bool value) { m_isMoving = value; }
 		void setTilePosition(sf::Vector2f pos) { m_sprite.setPosition(pos); }

@@ -14,8 +14,14 @@ namespace Rummage
 		int texX = 0;
 		int texY = 0;
 
-		if (m_suit == SUIT_NONE)
+		if (m_suit == SUIT_NONE && m_rank == SUIT_NONE)
 		{
+			// Joker
+			texX = 4 * (kTileSize + 4);
+		}
+		else if (m_suit == SUIT_NONE)
+		{
+			// Blank
 			texX = 3 * (kTileSize + 4);
 		}
 		else

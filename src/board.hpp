@@ -49,6 +49,9 @@ namespace Rummage
 
 		// Public functions
 
+		bool isFull();
+		void drawTileFromDeck(std::vector<std::unique_ptr<Tile>>& deck);
+
 		void update(sf::Vector2f mousePosView, bool hasCurrentTile);
 		virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 	};

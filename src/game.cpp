@@ -3,6 +3,7 @@
 #include <iostream>
 #include <time.h>
 #include <vector>
+#include <algorithm>
 
 #include "board.hpp"
 #include "utils.hpp"
@@ -24,6 +25,9 @@ namespace Rummage
 
 		//m_board->setPos({ kInitWindowWidth / 2 - m_board->getSize().x / 2, kInitWindowHeight / 2 - m_board->getSize().y / 2 });
 		m_hand->setPos({ 0, m_board->getSize().y });
+
+		// Create deck
+		createDeck();
 	}
 
 	void Game::initWindow()
@@ -37,6 +41,35 @@ namespace Rummage
 		// Set FPS
 		m_window->setVerticalSyncEnabled(true); // VSync
 		//this->window.setFramerateLimit(60);
+	}
+
+	void Game::createDeck()
+	{
+		// 2 * 4 suits * 12 ranks + 2 jokers = 98 tiles
+		for (size_t i = 0; i < 2; i++)
+		{
+			// Suit
+			for (int s = SUIT_GOLD; s < SUIT_MAX; s++)
+			{
+				// Rank
+				for (int r = RANK_A; r < RANK_MAX; r++)
+				{
+					std::unique_ptr<Tile> tile = std::make_unique<Tile>(static_cast<Suit>(s), static_cast<Rank>(r));
+					m_deck.push_back(std::move(tile));
+				}
+			}
+
+			// Joker
+			std::unique_ptr<Tile> tile = std::make_unique<Tile>(SUIT_NONE, RANK_NONE);
+			m_deck.push_back(std::move(tile));
+		}
+
+		// Shuffle the elements
+		for (size_t i = m_deck.size() - 1; i > 0; i--)
+		{
+			size_t j = rand() % i;
+			std::iter_swap(m_deck.begin() + i, m_deck.begin() + j);
+		}
 	}
 
 	// Handle dragging an dropping tiles in slots
@@ -135,10 +168,20 @@ namespace Rummage
 			{
 				switch (keyPressed->scancode)
 				{
-				case sf::Keyboard::Scancode::Escape:
-					m_window->close();
-					break;
-				default: break;
+					case sf::Keyboard::Scancode::Escape:
+					{
+						m_window->close();
+						break;
+					}
+					case sf::Keyboard::Scancode::D:
+					{
+						if (m_hand)
+						{
+							m_hand->drawTileFromDeck(m_deck);
+						}
+						break;
+					}
+					default: break;
 				}
 			}
 
@@ -148,6 +191,8 @@ namespace Rummage
 
 	void Game::resizeView(int windowWidth, int windowHeight)
 	{
+		// Idea: check setting viewport to the correct size of the screen fixes pixel scaling problems
+
 		// Make view fit the game board while keeping the board's aspect
 
 		sf::Vector2f gameWorldSize = getGameWorldSize();

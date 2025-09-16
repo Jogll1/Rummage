@@ -24,15 +24,6 @@ namespace Rummage
 			static_cast<float>(m_padding.l + (Tile::kTileSize + m_gap) * m_tilesX - m_gap + m_padding.r),
 			static_cast<float>(m_padding.t + (Tile::kTileSize + m_gap) * m_tilesY - m_gap + m_padding.b)
 		);
-		
-		// Test
-		for (int i = 0; i < 24; i++)
-		{
-			if (Slot* slot = getSlotAt(rand() % m_tilesX, rand() % m_tilesY))
-			{
-				slot->setTile(std::make_unique<Tile>(Tile::getRandomSuit(), Tile::getRandomRank()));
-			}
-		}
 	}
 
 	Board::~Board() {}
@@ -76,6 +67,32 @@ namespace Rummage
 	}
 
 	// Public functions
+
+	bool Board::isFull()
+	{
+		for (Slot& slot : m_slots)
+		{
+			if (slot.hasTile())
+			{
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	void Board::drawTileFromDeck(std::vector<std::unique_ptr<Tile>>& deck)
+	{
+		for (Slot& slot : m_slots)
+		{
+			if (!slot.hasTile() && !deck.empty())
+			{
+				slot.setTile(std::move(deck.back()));
+				deck.pop_back();
+				return;
+			}
+		}
+	}
 
 	void Board::update(sf::Vector2f mousePosView, bool hasCurrentTile)
 	{
