@@ -1,7 +1,8 @@
 #version 120
 
 uniform sampler2D texture;
-uniform float offset;
+uniform float offsetX;
+uniform float offsetY;
 uniform vec4 colour;
 
 void main()
@@ -15,10 +16,10 @@ void main()
     }
     else
     {
-        float au = texture2D(texture, vec2(texCoord.x, texCoord.y - offset)).a;
-        float ad = texture2D(texture, vec2(texCoord.x, texCoord.y + offset)).a;
-        float al = texture2D(texture, vec2(texCoord.x - offset, texCoord.y)).a;
-        float ar = texture2D(texture, vec2(texCoord.x + offset, texCoord.y)).a;
+        float au = texture2D(texture, vec2(texCoord.x, texCoord.y - offsetY)).a;
+        float ad = texture2D(texture, vec2(texCoord.x, texCoord.y + offsetY)).a;
+        float al = texture2D(texture, vec2(texCoord.x - offsetX, texCoord.y)).a;
+        float ar = texture2D(texture, vec2(texCoord.x + offsetX, texCoord.y)).a;
 
         if (au == 1.0 || ad == 1.0 || al == 1.0 || ar == 1.0)
         {

@@ -27,6 +27,7 @@ namespace Rummage
 
 		sf::Vector2f getPosition() const { return m_sprite.getPosition(); }
 		bool hasTile() const { return m_tile != nullptr; }
+		std::unique_ptr<Tile>* getTile() { return &m_tile; }
 
 		// Public functions
 

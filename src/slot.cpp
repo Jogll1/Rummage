@@ -18,10 +18,12 @@ namespace Rummage
 		m_sprite.setTextureRect(sf::IntRect({0, 0}, {kSlotSize + 4, kSlotSize + 4}));
 
 		// Load shader
-		m_outlineShader = ResourceManager::getShader(SHADERS_PATH "highlight.shader", sf::Shader::Type::Fragment);
+		m_outlineShader = ResourceManager::getShader(SHADERS_PATH "outline.shader", sf::Shader::Type::Fragment);
 
 		// Set shader uniforms
 		m_outlineShader->setUniform("texture", m_sprite.getTexture());
+		m_outlineShader->setUniform("offsetX", 1.0f / m_sprite.getTexture().getSize().x);
+		m_outlineShader->setUniform("offsetY", 1.0f / m_sprite.getTexture().getSize().y);
 		m_outlineShader->setUniform("colour", sf::Glsl::Vec4 {1.0, 1.0, 1.0, 1.0});
 	}
 

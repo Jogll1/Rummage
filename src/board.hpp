@@ -25,22 +25,21 @@ namespace Rummage
 		Padding m_padding;     // Padding in pixels
 		unsigned int m_gap;    // Gap in pixels
 
-		unsigned int m_tilesX; // How many rows of tiles
-		unsigned int m_tilesY; // How many columns of tiles
+		unsigned int m_slotsX; // How many tiles in the board
+		unsigned int m_slotsY; // How many columns of tiles
 
 		std::vector<Slot> m_slots;
 	public:
 		Board(unsigned int tilesX, unsigned int tilesY, Padding padding = { 10, 10, 10, 10 },
-			  unsigned int gap = 2, sf::Vector2f pos = {0, 0}
-		);
-		virtual ~Board();
+			  unsigned int gap = 2, sf::Vector2f pos = {0, 0});
+		virtual ~Board() = default;
 
 		// Getters
 
-		unsigned int getTilesX() const { return m_tilesX; }
-		unsigned int getTilesY() const { return m_tilesY; }
+		unsigned int getSlotsX() const { return m_slotsX; }
+		unsigned int getSlotsY() const { return m_slotsY; }
 
-		std::vector<Slot>* getSlots();
+		std::vector<Slot>* getSlots() { return &m_slots; }
 		Slot* getSlotAt(unsigned int x, unsigned int y);
 
 		// Setters

@@ -91,7 +91,8 @@ namespace Rummage
 	{
 		// Needs:
 		// setUniform("texture", sprite.getTexture());
-		// setUniform("offset", 1.0f / sprite.getTexture().getSize().x);
+		// setUniform("offsetX", 1.0f / sprite.getTexture().getSize().x);
+		// setUniform("offsetY", 1.0f / sprite.getTexture().getSize().y);
 		// setUniform("colour", sf::Glsl::Vec4 {1.0, 1.0, 1.0, 1.0})
 		getShader(SHADERS_PATH "outline.shader", sf::Shader::Type::Fragment);
 

@@ -70,6 +70,65 @@ namespace Rummage
 		}
 	}
 
+	// Can place a tile if:
+	// It has no immediate neighbours in the cardinal directions OR
+	// It forms a sequence:
+	// - of the same rank OR
+	// - of the same suit where ranks go up by 1 in the same direction (i.e. A, 2, 3 not A, 2, A)
+	// Jokers can be any suit or rank
+	bool Game::canPlace(Slot* slot, sf::Vector2u slotCoords, const std::unique_ptr<Board>* board)
+	{
+		if (m_currentTile && *board)
+		{
+			// Always place in hand 
+			if (*board == m_hand) return true;
+
+			// Checks for same rank: GOLD, SILVER, COPPER, IRON
+			int suitsMatched[SUIT_MAX - 1] = { 
+				m_currentTile->getSuit() == SUIT_GOLD ? 1 : 0,
+				m_currentTile->getSuit() == SUIT_SILVER ? 1 : 0,
+				m_currentTile->getSuit() == SUIT_COPPER ? 1 : 0,
+				m_currentTile->getSuit() == SUIT_IRON ? 1 : 0
+			};
+
+			// Check for same suit
+			int diff = 0;
+
+			// Check the cardinal directions
+
+			// Left
+			for (int x = slotCoords.x - 1; x >= 0; x--)
+			{
+				Slot* slot = (*board)->getSlotAt(x, slotCoords.y);
+				
+				// Empty tile
+				if (!slot->hasTile()) break;
+
+				Rank r = (*slot->getTile())->getRank();
+				Suit s = (*slot->getTile())->getSuit();
+
+				// Same rank
+				if (r == m_currentTile->getRank())
+				{
+					std::cout << "same rank\n";
+					++suitsMatched[s - 1];
+					std::cout << suitsMatched[0] << ", " << suitsMatched[1] << ", " << suitsMatched[2] << ", " << suitsMatched[3] << "\n";
+					// Increment no. instances of s and check if its more than 1
+					if (suitsMatched[s - 1] > 1)
+					{
+						return false;
+					}
+				}
+
+				return false;
+			}
+
+			return true;
+		}
+
+		return false;
+	}
+
 	// Handle dragging an dropping tiles in slots
 	// Tiles can be dragged from: 
 	// - the hand to the board, 
@@ -83,51 +142,71 @@ namespace Rummage
 
 		if (m_currentTile)
 		{
-			if (const auto* mouseButtonReleased = event->getIf<sf::Event::MouseButtonReleased>())
+			if (const auto* mouseButtonPressed = event->getIf<sf::Event::MouseButtonPressed>())
 			{
-				m_currentTile->setIsMoving(false);
-				bool placed = false;
-
-				// For the slots in m_board and m_hand, place tile
-				// if mouse is release over a slot
-				for (auto& slots : { m_board->getSlots(), m_hand->getSlots() })
+				// If right click, cancel move
+				if (mouseButtonPressed->button == sf::Mouse::Button::Right)
 				{
-					for (Slot& slot : *slots)
-					{
-						if (slot.isMouseOver(mousePosView))
-						{
-							if (slot.hasTile())
-							{
-								// Swap tiles at that slot
-								std::unique_ptr<Tile> temp = slot.dropTile();
-								slot.setTile(std::move(m_currentTile));
-								m_lastSlot->setTile(std::move(temp));
-							}
-							else
-							{
-								// Drop current tile into new slot
-								slot.setTile(std::move(m_currentTile));
-							}
+					m_lastSlot->setTile(std::move(m_currentTile));
+				}
+			}
+			else
+			{
+				// If left release, drop tile accordingly
+				const auto* mouseButtonReleased = event->getIf<sf::Event::MouseButtonReleased>();
 
-							m_lastSlot = &slot;
-							placed = true;
-							break;
+				// For the slots in m_board and m_hand, place tile if mouse is released over a slot
+				// Continuously loop over slots to update the slot outline
+				for (const auto* board : { &m_board, &m_hand })
+				{
+					if (*board)
+					{
+						for (unsigned int y = 0; y < (*board)->getSlotsY(); y++)
+						{
+							for (unsigned int x = 0; x < (*board)->getSlotsX(); x++)
+							{
+								Slot* slot = (*board)->getSlotAt(x, y);
+
+								if (slot->isMouseOver(mousePosView) && canPlace(slot, { x, y }, board))
+								{
+									// Slot is playable
+									slot->setOutline(true);
+
+									if (mouseButtonReleased)
+									{
+										m_currentTile->setIsMoving(false);
+
+										if (slot->hasTile())
+										{
+											// Swap tiles at that slot
+											std::unique_ptr<Tile> temp = slot->dropTile();
+											slot->setTile(std::move(m_currentTile));
+											m_lastSlot->setTile(std::move(temp));
+										}
+										else
+										{
+											// Drop current tile into new slot
+											slot->setTile(std::move(m_currentTile));
+										}
+
+										m_lastSlot = slot;
+										slot->setOutline(false);
+										return;
+									}
+								}
+								else
+								{
+									// Slot is not playable
+									slot->setOutline(false);
+								}
+							}
 						}
 					}
 				}
 
-				if (!placed && m_lastSlot)
+				// Return current tile to last slot if not dropped
+				if (mouseButtonReleased && m_lastSlot)
 				{
-					// Return current tile to last slot if not dropped
-					m_lastSlot->setTile(std::move(m_currentTile));
-				}
-			}
-
-			if (const auto* mouseButtonPressed = event->getIf<sf::Event::MouseButtonPressed>())
-			{
-				if (mouseButtonPressed->button == sf::Mouse::Button::Right)
-				{
-					// If right click, cancel move
 					m_lastSlot->setTile(std::move(m_currentTile));
 				}
 			}
@@ -261,8 +340,8 @@ namespace Rummage
 
 		sf::Vector2f mousePosView = m_window->mapPixelToCoords(sf::Mouse::getPosition(*m_window));
 
-		m_board->update(mousePosView, m_currentTile != nullptr);
-		m_hand->update(mousePosView, m_currentTile != nullptr);
+		//m_board->update(mousePosView, m_currentTile != nullptr);
+		//m_hand->update(mousePosView, m_currentTile != nullptr);
 
 		// Update dragged tile position
 		if (m_currentTile)

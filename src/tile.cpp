@@ -17,7 +17,7 @@ namespace Rummage
 		if (m_suit == SUIT_NONE && m_rank == SUIT_NONE)
 		{
 			// Joker
-			texX = 4 * (kTileSize + 4);
+			texX = 5 * (kTileSize + 4);
 		}
 		else if (m_suit == SUIT_NONE)
 		{

@@ -48,6 +48,7 @@ namespace Rummage
 		sf::Vector2f getMousePosView() const { return m_window->mapPixelToCoords(sf::Mouse::getPosition(*m_window)); }
 
 		void createDeck();
+		bool canPlace(Slot* slot, sf::Vector2u slotCoords, const std::unique_ptr<Board>* board);
 
 		void handleDragAndDrop(const std::optional<sf::Event> event);
 		void pollEvents();

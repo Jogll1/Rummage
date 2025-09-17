@@ -13,7 +13,7 @@ namespace Rummage
 	// Constructor and Destructor
 
 	Board::Board(unsigned int tilesX, unsigned int tilesY, Padding padding, unsigned int gap, sf::Vector2f pos)
-		: m_tilesX(tilesX), m_tilesY(tilesY), m_padding(padding), m_gap(gap), m_slots(tilesX* tilesY)
+		: m_slotsX(tilesX), m_slotsY(tilesY), m_padding(padding), m_gap(gap), m_slots(tilesX * tilesY)
 	{
 		// Width:  paddingL + (tile width + gapX) * tilesX - gapX + paddingR
 		// Height: paddingT + (tile height + gapY) * tilesY - gapY + paddingB
@@ -21,27 +21,20 @@ namespace Rummage
 		setPos(pos);
 
 		m_size = sf::Vector2f(
-			static_cast<float>(m_padding.l + (Tile::kTileSize + m_gap) * m_tilesX - m_gap + m_padding.r),
-			static_cast<float>(m_padding.t + (Tile::kTileSize + m_gap) * m_tilesY - m_gap + m_padding.b)
+			static_cast<float>(m_padding.l + (Tile::kTileSize + m_gap) * m_slotsX - m_gap + m_padding.r),
+			static_cast<float>(m_padding.t + (Tile::kTileSize + m_gap) * m_slotsY - m_gap + m_padding.b)
 		);
 	}
 
-	Board::~Board() {}
-
 	// Getters
-
-	std::vector<Slot>* Board::getSlots()
-	{
-		return &m_slots;
-	}
 
 	// Get the slot on the board at (x, y).
 	// Returns nullptr for invalid slots.
 	Slot* Board::getSlotAt(unsigned int x, unsigned int y)
 	{
-		if (y >= 0 && y < m_tilesY && x >= 0 && x < m_tilesX)
+		if (y >= 0 && y < m_slotsY && x >= 0 && x < m_slotsX)
 		{
-			return &m_slots.at(y * m_tilesX + x);
+			return &m_slots.at(y * m_slotsX + x);
 		}
 
 		return nullptr;
@@ -54,14 +47,14 @@ namespace Rummage
 		m_pos = newPos; 
 		
 		// Position each slot
-		for (unsigned int y = 0; y < m_tilesY; y++) {
-			for (unsigned int x = 0; x < m_tilesX; x++) {
+		for (unsigned int y = 0; y < m_slotsY; y++) {
+			for (unsigned int x = 0; x < m_slotsX; x++) {
 				sf::Vector2f pos = sf::Vector2f(
 					static_cast<float>(m_pos.x + m_padding.l + (Tile::kTileSize + m_gap) * x),
 					static_cast<float>(m_pos.y + m_padding.t + (Tile::kTileSize + m_gap) * y)
 				);
 
-				m_slots[y * m_tilesX + x].setSlotPosition(pos);
+				m_slots[y * m_slotsX + x].setSlotPosition(pos);
 			}
 		}
 	}
@@ -106,10 +99,7 @@ namespace Rummage
 
 	void Board::update(sf::Vector2f mousePosView, bool hasCurrentTile)
 	{
-		for (Slot& slot : m_slots)
-		{
-			slot.setOutline(slot.isMouseOver(mousePosView) && hasCurrentTile);
-		}
+		
 	}
 
 	void Board::draw(sf::RenderTarget& target, sf::RenderStates states) const 
