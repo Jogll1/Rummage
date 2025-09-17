@@ -76,7 +76,7 @@ namespace Rummage
 	// - of the same rank OR
 	// - of the same suit where ranks go up by 1 in the same direction (i.e. A, 2, 3 not A, 2, A)
 	// Jokers can be any suit or rank
-	bool Game::canPlace(Slot* slot, sf::Vector2u slotCoords, const std::unique_ptr<Board>* board)
+	bool Game::canPlace(sf::Vector2u slotCoords, const std::unique_ptr<Board>* board)
 	{
 		if (m_currentTile && *board)
 		{
@@ -91,37 +91,136 @@ namespace Rummage
 				m_currentTile->getSuit() == SUIT_IRON ? 1 : 0
 			};
 
-			// Check for same suit
-			int diff = 0;
+			// =============================
+			// =============================
+			// =============================
+
+			// Create an array of all ranks and suits from the target slot's column and row,
+			// while pretending the current tile has been placed there
+			// then check it fits the rules. 
+
+			//const unsigned int slotsX = (*board)->getSlotsX();
+			//const unsigned int slotsY = (*board)->getSlotsY();
+
+			// Horizontal
+
+			//TODO: precompute?
+			// Grid row integer representation as a vector of (Suit, Rank)
+			// Empty slots will be (-1, -1)
+			//std::vector<sf::Vector2i> rowVals(slotsX); 
+			//for (unsigned int x = 0; x < slotsX; x++)
+			//{
+			//	if (x == slotCoords.x)
+			//	{
+			//		rowVals[x].x = m_currentTile->getSuit();
+			//		rowVals[x].y = m_currentTile->getRank();
+			//	}
+			//	else
+			//	{
+			//		Slot* slot = (*board)->getSlotAt(x, slotCoords.y);
+			//		if (slot && slot->hasTile())
+			//		{
+			//			rowVals[x].x = (*slot->getTile())->getSuit();
+			//			rowVals[x].y = (*slot->getTile())->getRank();
+			//		}
+			//		else
+			//		{
+			//			rowVals[x] = { -1, -1 };
+			//		}
+			//	}
+			//}
+			//
+			//std::cout << "Row: ";
+			//for (size_t i = 0; i < slotsX; i++)
+			//{
+			//	std::cout << "(" << rowVals[i].x << ", " << rowVals[i].y << ") ";
+			//}
+			//std::cout << "\n";
+
+
+			//// Check rules
+			//for (unsigned int x = 0; x < slotsX; x++)
+			//{
+			//	// If has tile
+			//	if (rowVals[x].x != -1)
+			//	{
+			//		// Same rank
+			//		if (rowVals[x].y == m_currentTile->getRank())
+			//		{
+			//			// Increment no. instances of s and check if its more than 1
+			//			if (++suitsMatched[rowVals[x].x - 1] > 1)
+			//			{
+			//				return false;
+			//			}
+			//		}
+			//	}
+			//}
+
+			//std::cout << "\n";
+
+
+			// =============================
+			// =============================
+			// =============================
 
 			// Check the cardinal directions
+
+			int currentCheckRank = m_currentTile->getRank();
+			int diff = 0;
 
 			// Left
 			for (int x = slotCoords.x - 1; x >= 0; x--)
 			{
-				Slot* slot = (*board)->getSlotAt(x, slotCoords.y);
-				
-				// Empty tile
-				if (!slot->hasTile()) break;
-
-				Rank r = (*slot->getTile())->getRank();
-				Suit s = (*slot->getTile())->getSuit();
-
-				// Same rank
-				if (r == m_currentTile->getRank())
+				if (Slot* slot = (*board)->getSlotAt(x, slotCoords.y))
 				{
-					std::cout << "same rank\n";
-					++suitsMatched[s - 1];
-					std::cout << suitsMatched[0] << ", " << suitsMatched[1] << ", " << suitsMatched[2] << ", " << suitsMatched[3] << "\n";
-					// Increment no. instances of s and check if its more than 1
-					if (suitsMatched[s - 1] > 1)
+					// Empty tile
+					if (!slot->hasTile()) break;
+
+					Rank r = (*slot->getTile())->getRank();
+					Suit s = (*slot->getTile())->getSuit();
+
+					// Same rank
+					if (r == m_currentTile->getRank())
 					{
-						return false;
+						// Increment no. instances of s and check if its more than 1
+						if (++suitsMatched[s - 1] > 1)
+						{
+							return false;
+						}
+					}
+
+					// Same suit
+					if (s == m_currentTile->getSuit())
+					{
+						int checkDiff = currentCheckRank - r;
+
+						if (std::abs(checkDiff) != 1) return false;
+
+						if (diff == 0)
+						{
+							diff = checkDiff;
+						}
+						else if (checkDiff != diff)
+						{
+							return false;
+						}
+
+						currentCheckRank = r;
 					}
 				}
-
-				return false;
 			}
+
+			// Right
+			for (int x = slotCoords.x + 1; x < (*board)->getSlotsX(); x++)
+			{
+
+			}
+
+			// Check the cardinal directions
+			// Left: int x = slotCoords.x - 1; x >= 0; x--
+			// Right int x = slotCoords.x + 1; x < (*board)->getSlotsX(); x++
+			// Up:   int y = slotCoords.y - 1; y >= 0; y--
+			// Down: int y = slotCoords.y + 1; x < (*board)->getSlotsY(); y++
 
 			return true;
 		}
@@ -167,7 +266,7 @@ namespace Rummage
 							{
 								Slot* slot = (*board)->getSlotAt(x, y);
 
-								if (slot->isMouseOver(mousePosView) && canPlace(slot, { x, y }, board))
+								if (slot->isMouseOver(mousePosView) && canPlace({ x, y }, board))
 								{
 									// Slot is playable
 									slot->setOutline(true);
@@ -178,6 +277,8 @@ namespace Rummage
 
 										if (slot->hasTile())
 										{
+											// TODO: CHECK CAN PLACE THE TILE BEING SWAPPED
+
 											// Swap tiles at that slot
 											std::unique_ptr<Tile> temp = slot->dropTile();
 											slot->setTile(std::move(m_currentTile));
