@@ -65,7 +65,7 @@ namespace Rummage
 	{
 		for (Slot& slot : m_slots)
 		{
-			if (slot.hasTile())
+			if (!slot.hasTile())
 			{
 				return false;
 			}
@@ -91,7 +91,7 @@ namespace Rummage
 
 	void Board::drawTileFromDeck(std::vector<std::unique_ptr<Tile>>& deck)
 	{
-		if (deck.empty()) return;
+		if (deck.empty() || isFull()) return;
 
 		sendTileToFirstSlot(std::move(deck.back()));
 		deck.pop_back();
