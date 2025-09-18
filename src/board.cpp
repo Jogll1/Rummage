@@ -24,6 +24,15 @@ namespace Rummage
 			static_cast<float>(m_padding.l + (Tile::kTileSize + m_gap) * m_slotsX - m_gap + m_padding.r),
 			static_cast<float>(m_padding.t + (Tile::kTileSize + m_gap) * m_slotsY - m_gap + m_padding.b)
 		);
+
+		// Set slot coords
+		for (unsigned int y = 0; y < m_slotsY; y++) {
+			for (unsigned int x = 0; x < m_slotsX; x++) {
+				Slot& slot = m_slots[y * m_slotsX + x];
+				slot.setCoords({x, y});
+				slot.setParent(this);
+			}
+		}
 	}
 
 	// Getters
@@ -54,7 +63,7 @@ namespace Rummage
 					static_cast<float>(m_pos.y + m_padding.t + (Tile::kTileSize + m_gap) * y)
 				);
 
-				m_slots[y * m_slotsX + x].setSlotPosition(pos);
+				m_slots[y * m_slotsX + x].setPosition(pos);
 			}
 		}
 	}

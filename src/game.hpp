@@ -30,8 +30,8 @@ namespace Rummage
 
 		// Game
 
-		std::unique_ptr<Board> m_board; // Where tiles will be played to
-		std::unique_ptr<Board> m_hand;  // Where tiles will be played from
+		Board* m_board; // Where tiles will be played to
+		Board* m_hand;  // Where tiles will be played from
 
 		std::vector<std::unique_ptr<Tile>> m_deck;
 
@@ -48,7 +48,7 @@ namespace Rummage
 		sf::Vector2f getMousePosView() const { return m_window->mapPixelToCoords(sf::Mouse::getPosition(*m_window)); }
 
 		void createDeck();
-		bool canPlace(Suit toPlaceSuit, Rank toPlaceRank, sf::Vector2u slotCoords, const std::unique_ptr<Board>* board);
+		bool canPlace(Suit toPlaceSuit, Rank toPlaceRank, sf::Vector2u slotCoords, Board* board);
 
 		void handleDragAndDrop(const std::optional<sf::Event> event);
 		void pollEvents();

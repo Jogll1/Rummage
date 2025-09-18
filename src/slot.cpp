@@ -29,7 +29,7 @@ namespace Rummage
 
 	// Public functions
 
-	void Slot::setSlotPosition(sf::Vector2f pos)
+	void Slot::setPosition(sf::Vector2f pos)
 	{
 		m_sprite.setPosition(pos);
 

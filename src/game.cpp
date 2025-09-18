@@ -18,10 +18,10 @@ namespace Rummage
 		m_window = nullptr;
 
 		// Create and position new board and hand
-		m_board = std::make_unique<Board>(11u, 11u);
+		m_board = new Board(11u, 11u);
 
 		Padding pad = { 10, 10, 10, 10 };
-		m_hand = std::make_unique<Board>(11u, 2u, pad);
+		m_hand = new Board(11u, 2u, pad);
 
 		//m_board->setPos({ kInitWindowWidth / 2 - m_board->getSize().x / 2, kInitWindowHeight / 2 - m_board->getSize().y / 2 });
 		m_hand->setPos({ 0, m_board->getSize().y });
@@ -76,12 +76,12 @@ namespace Rummage
 	// - of the same rank OR
 	// - of the same suit where ranks go up by 1 in the same direction (i.e. A, 2, 3 not A, 2, A)
 	// Jokers can be any suit or rank
-	bool Game::canPlace(Suit toPlaceSuit, Rank toPlaceRank, sf::Vector2u slotCoords, const std::unique_ptr<Board>* board)
+	bool Game::canPlace(Suit toPlaceSuit, Rank toPlaceRank, sf::Vector2u slotCoords, Board* board)
 	{
-		if (*board)
+		if (board)
 		{
 			// Always place in hand 
-			if (*board == m_hand) return true;
+			if (board == m_hand) return true;
 
 			// Checks for same rank: GOLD, SILVER, COPPER, IRON
 			int suitsMatched[SUIT_MAX - 1] = { 
@@ -100,13 +100,13 @@ namespace Rummage
 			// Left
 			for (int x = slotCoords.x - 1; x >= 0; x--)
 			{
-				if (Slot* slot = (*board)->getSlotAt(x, slotCoords.y))
+				if (Slot* slot = board->getSlotAt(x, slotCoords.y))
 				{
 					// Empty tile
 					if (!slot->hasTile()) break;
 
-					Rank r = (*slot->getTile())->getRank();
-					Suit s = (*slot->getTile())->getSuit();
+					Rank r = slot->getTile()->getRank();
+					Suit s = slot->getTile()->getSuit();
 
 					if (r == toPlaceRank)
 					{
@@ -146,15 +146,15 @@ namespace Rummage
 			currentCheckRank = m_currentTile->getRank();
 			if (diff != 0) diff *= -1;
 
-			for (int x = slotCoords.x + 1; x < (*board)->getSlotsX(); x++)
+			for (int x = slotCoords.x + 1; x < board->getSlotsX(); x++)
 			{
-				if (Slot* slot = (*board)->getSlotAt(x, slotCoords.y))
+				if (Slot* slot = board->getSlotAt(x, slotCoords.y))
 				{
 					// Empty tile
 					if (!slot->hasTile()) break;
 
-					Rank r = (*slot->getTile())->getRank();
-					Suit s = (*slot->getTile())->getSuit();
+					Rank r = slot->getTile()->getRank();
+					Suit s = slot->getTile()->getSuit();
 
 					if (r == toPlaceRank)
 					{
@@ -230,52 +230,46 @@ namespace Rummage
 
 				// For the slots in m_board and m_hand, place tile if mouse is released over a slot
 				// Continuously loop over slots to update the slot outline
-				for (const auto* board : { &m_board, &m_hand })
+				for (auto* board : { m_board, m_hand })
 				{
-					if (*board)
+					if (board)
 					{
-						for (unsigned int y = 0; y < (*board)->getSlotsY(); y++)
+						for (Slot& slot : *board->getSlots())
 						{
-							for (unsigned int x = 0; x < (*board)->getSlotsX(); x++)
+							bool canPlaceAtSlot = canPlace(m_currentTile->getSuit(), m_currentTile->getRank(), slot.getCoords(), board);
+							bool canSwapAtSlot = !slot.hasTile() || canPlace(slot.getTile()->getSuit(), slot.getTile()->getRank(), m_lastSlot->getCoords(), m_lastSlot->getParent());
+
+							if (slot.isMouseOver(mousePosView) && canPlaceAtSlot && canSwapAtSlot)
 							{
-								Slot* slot = (*board)->getSlotAt(x, y);
+								// Slot is playable
+								slot.setOutline(true);
 
-								if (slot->isMouseOver(mousePosView) && 
-									canPlace(m_currentTile->getSuit(), m_currentTile->getRank(), { x, y }, board))
+								if (mouseButtonReleased)
 								{
-									// Slot is playable
-									slot->setOutline(true);
+									m_currentTile->setIsMoving(false);
 
-									if (mouseButtonReleased)
+									if (slot.hasTile())
 									{
-										m_currentTile->setIsMoving(false);
-
-										if (slot->hasTile())
-										{
-											// TODO: check if tiles can be swapped
-											// might need slot to store its coords
-
-											// Swap tiles at that slot
-											std::unique_ptr<Tile> temp = slot->dropTile();
-											slot->setTile(std::move(m_currentTile));
-											m_lastSlot->setTile(std::move(temp));
-										}
-										else
-										{
-											// Drop current tile into new slot
-											slot->setTile(std::move(m_currentTile));
-										}
-
-										m_lastSlot = slot;
-										slot->setOutline(false);
-										return;
+										// Swap tiles at that slot
+										std::unique_ptr<Tile> temp = slot.dropTile();
+										slot.setTile(std::move(m_currentTile));
+										m_lastSlot->setTile(std::move(temp));
 									}
+									else
+									{
+										// Drop current tile into new slot
+										slot.setTile(std::move(m_currentTile));
+									}
+
+									m_lastSlot = &slot;
+									slot.setOutline(false);
+									return;
 								}
-								else
-								{
-									// Slot is not playable
-									slot->setOutline(false);
-								}
+							}
+							else
+							{
+								// Slot is not playable
+								slot.setOutline(false);
 							}
 						}
 					}
@@ -407,6 +401,9 @@ namespace Rummage
 	Game::~Game()
 	{
 		delete m_window;
+
+		delete m_board;
+		delete m_hand;
 	}
 
 	// Public functions
