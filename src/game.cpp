@@ -70,6 +70,236 @@ namespace Rummage
 		}
 	}
 
+	// New idea:
+	// Can swap function
+	// Takes two slots
+	// assumes both tiles have been swapped
+	// creates an int rep
+	bool Game::canSwap(Slot& from, Slot& to)
+	{
+		// Assumes that m_currentTile is the tile represented by from
+		if (!m_currentTile) return false;
+
+		// Always all hand to hand swapping
+		if (from.getParent() == m_hand && to.getParent() == m_hand || &from == &to) return true;
+
+		// Rule checking lambda - always goes left to right or top to bottom
+		// Returns whether a given array violates the rules.
+		auto checkRules = [] (std::vector<sf::Vector2i> rep) {
+			// Check for same rank
+			int suitsMatched[SUIT_MAX - 1] = { 0, 0, 0, 0 };
+
+			// Checks for same suit
+			int diff = 0;
+
+			// Which check we are doing: -1 for none, 0 for same rank, 1 for same suit
+			int lastCheck = -1;
+
+			sf::Vector2i lastSlot = rep[0];
+			++suitsMatched[lastSlot.x - 1];
+
+			for (size_t i = 1; i < rep.size(); i++)
+			{
+				// Empty tile - reset checks
+				if (lastSlot.x == -1 || rep[i].x == -1) 
+				{
+					std::fill(suitsMatched, suitsMatched + SUIT_MAX - 1, 0);
+					diff = 0;
+					lastCheck = -1;
+					lastSlot = rep[i];
+					continue;
+				}
+
+				int check = -1;
+
+				if (rep[i].y == lastSlot.y)
+				{
+					check = 0;
+
+					// Same rank as lastSlot
+					if (++suitsMatched[rep[i].x - 1] > 1)
+					{
+						return false;
+					}
+				}
+				else if (rep[i].x == lastSlot.x)
+				{
+					check = 1;
+
+					// Same suit as lastSlot
+					int checkDiff = lastSlot.y - rep[i].y;
+					if (std::abs(checkDiff) != 1) return false;
+
+					if (diff == 0)
+					{
+						diff = checkDiff;
+					}
+					else if (checkDiff != diff)
+					{
+						return false;
+					}
+				}
+				else
+				{
+					return false;
+				}
+
+				if (lastCheck == -1)
+				{
+					lastCheck = check;
+				}
+				
+				if (check != lastCheck) return false;
+
+				lastSlot = rep[i];
+			}
+
+			return true;
+		};
+
+		// Create array representations of the rows and columns being changed
+		// Where each member is (Suit, Rank) and empties are (-1, -1)
+		std::vector<sf::Vector2i> toRow(to.getParent()->getSlotsX());
+		std::vector<sf::Vector2i> toCol(to.getParent()->getSlotsY());
+
+		std::vector<sf::Vector2i> fromRow(from.getParent()->getSlotsX());
+		std::vector<sf::Vector2i> fromCol(from.getParent()->getSlotsY());
+
+		bool sameRow = to.getCoords().x == from.getCoords().x;
+		bool sameCol = to.getCoords().y == from.getCoords().y;
+
+		// Initialise row/col if:
+		// The board of the row/col is not m_hand
+		//
+
+		// To: This is where m_currentTile is going, and where the tile at From is going.
+		// When initialising To, m_currentTile should be added.
+		//
+		// From, i.e. m_lastSlot: This is where m_currentTile is coming from, and the tile
+		// at To is going.
+		// When initialising From, the tile at To should be added if To has a tile.
+		// If To doesn't have a tile, don't check From.
+		//
+		// If both From and To have the same row or column, it shouldn't be checked twice.
+		// Order: To row, To col, From row, From col,
+		//		  given From row != To row, and From col != To col
+
+		// To
+		// ============ To row ============
+		for (size_t i = 0; i < toRow.size(); i++)
+		{
+			if (Slot* slot = to.getParent()->getSlotAt(i, to.getCoords().y))
+			{
+				if (slot->hasTile())
+				{
+					toRow[i] = { slot->getTile()->getSuit(), slot->getTile()->getRank() };
+				}
+				else
+				{
+					toRow[i] = { -1, -1 };
+				}
+			}
+		}
+
+		// Move the From tile to To spot if they are the same row
+		if (sameRow && to.hasTile())
+		{
+			toRow[from.getCoords().x] = { to.getTile()->getSuit(), to.getTile()->getRank() };
+		}
+
+		// Add in m_currentTile
+		toRow[to.getCoords().x] = { m_currentTile->getSuit(), m_currentTile->getRank() };
+
+		if (!checkRules(toRow)) return false;
+		// ================================
+
+		// ============ To col ============
+		for (size_t i = 0; i < toCol.size(); i++)
+		{
+			if (Slot* slot = to.getParent()->getSlotAt(to.getCoords().x, i))
+			{
+				if (slot->hasTile())
+				{
+					toCol[i] = { slot->getTile()->getSuit(), slot->getTile()->getRank() };
+				}
+				else
+				{
+					toCol[i] = { -1, -1 };
+				}
+			}
+		}
+
+		// Move the From tile to To spot if they are the same col
+		if (sameCol && to.hasTile())
+		{
+			toCol[from.getCoords().y] = { to.getTile()->getSuit(), to.getTile()->getRank() };
+		}
+
+		// Add in m_currentTile
+		toCol[to.getCoords().y] = { m_currentTile->getSuit(), m_currentTile->getRank() };
+		 
+		if (!checkRules(toCol)) return false;
+		// ================================
+
+		// ============ From row ============
+		if (!sameRow && to.hasTile() && from.getParent() != m_hand)
+		{
+			for (size_t i = 0; i < fromRow.size(); i++)
+			{
+				if (Slot* slot = to.getParent()->getSlotAt(i, from.getCoords().y))
+				{
+					if (slot->hasTile())
+					{
+						fromRow[i] = { slot->getTile()->getSuit(), slot->getTile()->getRank() };
+					}
+					else
+					{
+						fromRow[i] = { -1, -1 };
+					}
+				}
+			}
+
+			// Add in the tile at To
+			fromRow[to.getCoords().x] = { to.getTile()->getSuit(), to.getTile()->getRank()};
+
+			if (!checkRules(fromRow)) return false;
+		}
+		// ==================================
+
+		// ============ From col ============
+		if (!sameCol && to.hasTile() && from.getParent() != m_hand)
+		{
+			for (size_t i = 0; i < fromCol.size(); i++)
+			{
+				if (Slot* slot = to.getParent()->getSlotAt(from.getCoords().x, i))
+				{
+					if (slot->hasTile())
+					{
+						fromCol[i] = { slot->getTile()->getSuit(), slot->getTile()->getRank() };
+					}
+					else
+					{
+						fromCol[i] = { -1, -1 };
+					}
+				}
+			}
+
+			// Add in the tile at To
+			fromCol[to.getCoords().y] = { to.getTile()->getSuit(), to.getTile()->getRank() };
+
+			if (!checkRules(fromCol)) return false;
+		}
+		// ==================================
+
+		/*for (size_t i = 0; i < toRow.size(); i++)
+		{
+			std::cout << "(" << toRow[i].x << ", " << toRow[i].y << ") ";
+		}
+		std::cout << "\n";*/
+
+		return true;
+	}
+
 	// Can place a tile if:
 	// It has no immediate neighbours in the cardinal directions OR
 	// It forms a sequence:
@@ -78,128 +308,98 @@ namespace Rummage
 	// Jokers can be any suit or rank
 	bool Game::canPlace(Suit toPlaceSuit, Rank toPlaceRank, sf::Vector2u slotCoords, Board* board)
 	{
-		if (board)
+		if (!board) return false;
+
+		// Rules aren't applied in the hand
+		if (board == m_hand) return true;
+
+		// Checks for same rank: GOLD, SILVER, COPPER, IRON
+		int suitsMatched[SUIT_MAX - 1] = { 
+			toPlaceSuit == SUIT_GOLD ? 1 : 0,
+			toPlaceSuit == SUIT_SILVER ? 1 : 0,
+			toPlaceSuit == SUIT_COPPER ? 1 : 0,
+			toPlaceSuit == SUIT_IRON ? 1 : 0
+		};
+
+		// Checks for same suit
+		int currentCheckRank = toPlaceRank;
+		int diff = 0;
+
+		// Rule check lambda
+		// Return value: -1 = return false, 0 = continue, 1 = break
+		auto checkRules = [board, toPlaceRank, toPlaceSuit, &suitsMatched, &currentCheckRank, &diff](int x, int y) {
+			if (Slot* slot = board->getSlotAt(x, y))
+			{
+				// Empty tile
+				if (!slot->hasTile()) return 1;
+
+				Rank r = slot->getTile()->getRank();
+				Suit s = slot->getTile()->getSuit();
+
+				if (r == toPlaceRank)
+				{
+					// Same rank
+
+					if (++suitsMatched[s - 1] > 1)
+					{
+						return -1;
+					}
+				}
+				else if (s == toPlaceSuit)
+				{
+					// Same suit
+					int checkDiff = currentCheckRank - r;
+					std::cout << checkDiff << "\n";
+					if (std::abs(checkDiff) != 1) return -1;
+
+					if (diff == 0)
+					{
+						diff = checkDiff;
+					}
+					else if (checkDiff != diff)
+					{
+						return -1;
+					}
+
+					currentCheckRank = r;
+				}
+				else
+				{
+					return -1;
+				}
+			}
+
+			return 0;
+		};
+
+		// Check the cardinal directions
+
+		// Left
+		for (int x = slotCoords.x - 1; x >= 0; x--)
 		{
-			// Always place in hand 
-			if (board == m_hand) return true;
-
-			// Checks for same rank: GOLD, SILVER, COPPER, IRON
-			int suitsMatched[SUIT_MAX - 1] = { 
-				toPlaceSuit == SUIT_GOLD ? 1 : 0,
-				toPlaceSuit == SUIT_SILVER ? 1 : 0,
-				toPlaceSuit == SUIT_COPPER ? 1 : 0,
-				toPlaceSuit == SUIT_IRON ? 1 : 0
-			};
-
-			// Checks for same suit
-			int currentCheckRank = toPlaceRank;
-			int diff = 0;
-
-			// Check the cardinal directions
-
-			// Left
-			for (int x = slotCoords.x - 1; x >= 0; x--)
-			{
-				if (Slot* slot = board->getSlotAt(x, slotCoords.y))
-				{
-					// Empty tile
-					if (!slot->hasTile()) break;
-
-					Rank r = slot->getTile()->getRank();
-					Suit s = slot->getTile()->getSuit();
-
-					if (r == toPlaceRank)
-					{
-						// Same rank
-
-						if (++suitsMatched[s - 1] > 1)
-						{
-							return false;
-						}
-					}
-					else if (s == toPlaceSuit)
-					{
-						// Same suit
-
-						int checkDiff = currentCheckRank - r;
-						if (std::abs(checkDiff) != 1) return false;
-
-						if (diff == 0)
-						{
-							diff = checkDiff;
-						}
-						else if (checkDiff != diff)
-						{
-							return false;
-						}
-
-						currentCheckRank = r;
-					}
-					else
-					{
-						return false;
-					}
-				}
-			}
-
-			// Right
-			currentCheckRank = m_currentTile->getRank();
-			if (diff != 0) diff *= -1;
-
-			for (int x = slotCoords.x + 1; x < board->getSlotsX(); x++)
-			{
-				if (Slot* slot = board->getSlotAt(x, slotCoords.y))
-				{
-					// Empty tile
-					if (!slot->hasTile()) break;
-
-					Rank r = slot->getTile()->getRank();
-					Suit s = slot->getTile()->getSuit();
-
-					if (r == toPlaceRank)
-					{
-						// Same rank
-
-						if (++suitsMatched[s - 1] > 1)
-						{
-							return false;
-						}
-					}
-					else if (s == toPlaceSuit)
-					{
-						// Same suit
-
-						int checkDiff = currentCheckRank - r;
-						if (std::abs(checkDiff) != 1) return false;
-
-						if (diff == 0)
-						{
-							diff = checkDiff;
-						}
-						else if (checkDiff != diff)
-						{
-							return false;
-						}
-
-						currentCheckRank = r;
-					}
-					else
-					{
-						return false;
-					}
-				}
-			}
-
-			// Check the cardinal directions
-			// Left: int x = slotCoords.x - 1; x >= 0; x--
-			// Right int x = slotCoords.x + 1; x < (*board)->getSlotsX(); x++
-			// Up:   int y = slotCoords.y - 1; y >= 0; y--
-			// Down: int y = slotCoords.y + 1; x < (*board)->getSlotsY(); y++
-
-			return true;
+			int result = checkRules(x, slotCoords.y);
+			if (result == -1) return false;
+			if (result == 1) break;
 		}
 
-		return false;
+		// Right
+		currentCheckRank = m_currentTile->getRank();
+		if (diff != 0) diff *= -1;
+
+		for (int x = slotCoords.x + 1; x < board->getSlotsX(); x++)
+		{
+			int result = checkRules(x, slotCoords.y);
+			if (result == -1) return false;
+			if (result == 1) break;
+		}
+
+		// Check the cardinal directions
+		// Left: int x = slotCoords.x - 1; x >= 0; x--
+		// Right int x = slotCoords.x + 1; x < (*board)->getSlotsX(); x++
+		// Up:   int y = slotCoords.y - 1; y >= 0; y--
+		// Down: int y = slotCoords.y + 1; x < (*board)->getSlotsY(); y++
+
+		return true;
 	}
 
 	// Handle dragging an dropping tiles in slots
@@ -220,6 +420,14 @@ namespace Rummage
 				// If right click, cancel move
 				if (mouseButtonPressed->button == sf::Mouse::Button::Right)
 				{
+					for (auto* board : { m_board, m_hand })
+					{
+						for (Slot& slot : *board->getSlots())
+						{
+							slot.setOutline(false);
+						}
+					}
+
 					m_lastSlot->setTile(std::move(m_currentTile));
 				}
 			}
@@ -236,34 +444,34 @@ namespace Rummage
 					{
 						for (Slot& slot : *board->getSlots())
 						{
-							bool canPlaceAtSlot = canPlace(m_currentTile->getSuit(), m_currentTile->getRank(), slot.getCoords(), board);
-							bool canSwapAtSlot = !slot.hasTile() || canPlace(slot.getTile()->getSuit(), slot.getTile()->getRank(), m_lastSlot->getCoords(), m_lastSlot->getParent());
-
-							if (slot.isMouseOver(mousePosView) && canPlaceAtSlot && canSwapAtSlot)
+							if (slot.isMouseOver(mousePosView))
 							{
-								// Slot is playable
-								slot.setOutline(true);
-
-								if (mouseButtonReleased)
+								if (canSwap(*m_lastSlot, slot))
 								{
-									m_currentTile->setIsMoving(false);
+									// Slot is playable
+									slot.setOutline(true);
 
-									if (slot.hasTile())
+									if (mouseButtonReleased)
 									{
-										// Swap tiles at that slot
-										std::unique_ptr<Tile> temp = slot.dropTile();
-										slot.setTile(std::move(m_currentTile));
-										m_lastSlot->setTile(std::move(temp));
-									}
-									else
-									{
-										// Drop current tile into new slot
-										slot.setTile(std::move(m_currentTile));
-									}
+										m_currentTile->setIsMoving(false);
 
-									m_lastSlot = &slot;
-									slot.setOutline(false);
-									return;
+										if (slot.hasTile())
+										{
+											// Swap tiles at that slot
+											std::unique_ptr<Tile> temp = slot.dropTile();
+											slot.setTile(std::move(m_currentTile));
+											m_lastSlot->setTile(std::move(temp));
+										}
+										else
+										{
+											// Drop current tile into new slot
+											slot.setTile(std::move(m_currentTile));
+										}
+
+										m_lastSlot = &slot;
+										slot.setOutline(false);
+										return;
+									}
 								}
 							}
 							else
