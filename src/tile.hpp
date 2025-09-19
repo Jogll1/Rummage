@@ -6,11 +6,14 @@ namespace Rummage
 {
 	enum Suit : uint8_t {
 		SUIT_NONE = 0,
-		SUIT_GOLD = 1,
-		SUIT_SILVER = 2,
-		SUIT_COPPER = 3,
-		SUIT_IRON = 4,
-		SUIT_MAX = 5
+		SUIT_SUN = 1,
+		SUIT_MOON = 2,
+		SUIT_VENUS = 3,
+		SUIT_MARS = 4,
+		/*SUIT_MERCURY = 5,
+		SUIT_JUPITER = 6,
+		SUIT_SATURN = 7,*/
+		SUIT_MAX
 	};
 
 	enum Rank : uint8_t {
@@ -27,7 +30,7 @@ namespace Rummage
 		RANK_J = 10,
 		RANK_Q = 11,
 		RANK_K = 12,
-		RANK_MAX = 13
+		RANK_MAX
 	};
 
 	class Tile : public sf::Drawable

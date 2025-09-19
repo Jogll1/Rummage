@@ -5,7 +5,6 @@
 // TODO:
 // Make a themes.json for colours
 // Add a red border around tiles that will return to hand when the turn ends?
-// Swapping tiles around doesn't work
 
 int main()
 {

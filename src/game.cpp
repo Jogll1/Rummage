@@ -49,10 +49,10 @@ namespace Rummage
 		for (size_t i = 0; i < 2; i++)
 		{
 			// Suit
-			for (int s = SUIT_GOLD; s < SUIT_MAX; s++)
+			for (int s = 1; s < SUIT_MAX; s++)
 			{
 				// Rank
-				for (int r = RANK_A; r < RANK_MAX; r++)
+				for (int r = 1; r < RANK_MAX; r++)
 				{
 					m_deck.push_back(Tile::createTile(static_cast<Suit>(s), static_cast<Rank>(r)));
 				}
@@ -70,12 +70,13 @@ namespace Rummage
 		}
 	}
 
+	// Swaps the tiles at From and To if they are valid in their destinations.
 	// A tile is valid if:
-	// It has no immediate neighbours in the cardinal directions OR
-	// It forms a sequence:
-	// - of the same rank OR
-	// - of the same suit where ranks go up by 1 in the same direction (i.e. A, 2, 3 not A, 2, A)
-	// Jokers can be any suit or rank
+	// - It has no immediate neighbours in the cardinal directions OR
+	// - It forms a sequence:
+	//   - of the same rank OR
+	//   - of the same suit where ranks go up by 1 in the same direction (i.e. A, 2, 3 not A, 2, A)
+	// Jokers can be any suit or rank.
 	bool Game::canSwap(Slot& from, Slot& to)
 	{
 		// Assumes that m_currentTile is the tile represented by from
@@ -85,7 +86,7 @@ namespace Rummage
 		if (from.getParent() == m_hand && to.getParent() == m_hand || &from == &to) return true;
 
 		// Rule checking lambda - always goes left to right or top to bottom
-		// Returns whether a given array violates the rules.
+		// Returns whether a given array doesn't violates the rules.
 		auto checkRules = [] (std::vector<sf::Vector2i> rep) {
 			// Check for same rank
 			int suitsMatched[SUIT_MAX - 1] = { 0, 0, 0, 0 };
@@ -259,11 +260,8 @@ namespace Rummage
 		return true;
 	}
 
-	// Handle dragging an dropping tiles in slots
-	// Tiles can be dragged from: 
-	// - the hand to the board, 
-	// - the board to the board, or
-	// - the hand to the hand, or
+	// Handle dragging an dropping tiles in slots.
+	// Tiles can be dragged between the hand and the board.
 	void Game::handleDragAndDrop(const std::optional<sf::Event> event)
 	{
 		if (!event.has_value()) return;
@@ -277,6 +275,7 @@ namespace Rummage
 				// If right click, cancel move
 				if (mouseButtonPressed->button == sf::Mouse::Button::Right)
 				{
+					// Deselect all slots from being highlighted
 					for (auto* board : { m_board, m_hand })
 					{
 						for (Slot& slot : *board->getSlots())
@@ -290,7 +289,7 @@ namespace Rummage
 			}
 			else
 			{
-				// If left release, drop tile accordingly
+				// If left released, drop tile accordingly
 				const auto* mouseButtonReleased = event->getIf<sf::Event::MouseButtonReleased>();
 
 				// For the slots in m_board and m_hand, place tile if mouse is released over a slot

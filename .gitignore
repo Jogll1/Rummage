@@ -1,3 +1,5 @@
 /.vs/
 /out
+/resources/images/
+
 CMakeSettings.json
