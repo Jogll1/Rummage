@@ -35,7 +35,7 @@ namespace Rummage
 		// Factor in gaps in texture
 		sf::FloatRect properBounds = m_sprite.getGlobalBounds();
 		properBounds.position += {2, 2};
-		properBounds.size -= {2, 2};
+		properBounds.size -= {4, 4};
 
 		return properBounds.contains(mousePosView);
 	}

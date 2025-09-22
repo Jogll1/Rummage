@@ -33,7 +33,7 @@ namespace Rummage
 		m_window = new sf::RenderWindow(m_videoMode, "Rummage", kWindowStyle);
 
 		// Set the view to centre on the board
-		//resizeView(kInitWindowWidth, kInitWindowHeight);
+		resizeView(kInitWindowWidth, kInitWindowHeight);
 
 		// Set FPS
 		m_window->setVerticalSyncEnabled(true); // VSync
@@ -90,10 +90,20 @@ namespace Rummage
 	{
 		std::unique_ptr<UI> ui = std::make_unique<UI>();
 
-		std::unique_ptr<Button> playButton = std::make_unique<Button>(
-			"Play", sf::IntRect({132, 0}, {44, 22}), sf::IntRect({ 176, 0 }, { 44, 22 }), std::bind(&Game::startGame, this)
-		);
-		ui->addElement(std::move(playButton));
+		std::unique_ptr<ButtonGroup> buttons = std::make_unique<ButtonGroup>();
+		buttons->setVGap(2.f);
+		buttons->addElement(std::make_unique<Button>(
+			"HOST", sf::IntRect({ 136, 3 }, { 36, 16 }), sf::IntRect({ 180, 3 }, { 36, 16 }), std::bind(&Game::startGame, this)
+		));
+		buttons->addElement(std::make_unique<Button>(
+			"JOIN", sf::IntRect({ 136, 3 }, { 36, 16 }), sf::IntRect({ 180, 3 }, { 36, 16 }), std::bind(&Game::startGame, this)
+		));
+		buttons->addElement(std::make_unique<Button>(
+			"QUIT", sf::IntRect({ 136, 3 }, { 36, 16 }), sf::IntRect({ 180, 3 }, { 36, 16 }), std::bind(&Game::closeWindow, this)
+		));
+		buttons->setPos({ 0, 0 });
+
+		ui->addElement(std::move(buttons));
 
 		return std::move(ui);
 	}
@@ -459,7 +469,7 @@ namespace Rummage
 		{
 			if (event->is<sf::Event::Closed>())
 			{
-				m_window->close();
+				closeWindow();
 			}
 
 			if (const auto* resized = event->getIf<sf::Event::Resized>())
@@ -471,11 +481,6 @@ namespace Rummage
 			{
 				switch (keyPressed->scancode)
 				{
-					case sf::Keyboard::Scancode::Escape:
-					{
-						m_window->close();
-						break;
-					}
 					case sf::Keyboard::Scancode::D:
 					{
 						if (m_hand)
@@ -524,6 +529,11 @@ namespace Rummage
 
 		m_gameStarted = true;
 		resizeView(m_window->getSize().x, m_window->getSize().y);
+	}
+
+	void Game::closeWindow()
+	{
+		m_window->close();
 	}
 
 	void Game::resizeView(int windowWidth, int windowHeight)

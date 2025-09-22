@@ -66,6 +66,7 @@ namespace Rummage
 		void pollEvents();
 
 		void startGame();
+		void closeWindow();
 
 		void resizeView(int windowWidth, int windowHeight);
 	public:

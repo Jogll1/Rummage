@@ -8,6 +8,14 @@
 
 namespace Rummage
 {
+	struct Padding
+	{
+		unsigned int l;
+		unsigned int r;
+		unsigned int t;
+		unsigned int b;
+	};
+
 	// World objects have:
 	// - a size (sf::Vector2f)
 	// - a position (sf::Vector2f)
@@ -16,9 +24,10 @@ namespace Rummage
 	class WorldObject
 	{
 	protected:
-		sf::Vector2f m_pos = { 0, 0 };    // Position of the board in pixels
-		sf::Vector2f m_size = { 0, 0 };   // Size of board in pixels
+		sf::Vector2f m_pos = { 0, 0 };  // Position of the board in pixels
+		sf::Vector2f m_size = { 0, 0 }; // Size of board in pixels
 	public:
+		WorldObject() = default;
 		virtual ~WorldObject() = default;
 
 		// Getters

@@ -11,14 +11,6 @@
 
 namespace Rummage
 {
-	struct Padding
-	{
-		unsigned int l;
-		unsigned int r;
-		unsigned int t;
-		unsigned int b;
-	};
-
 	class Board : public WorldObject, public sf::Drawable
 	{
 	private:
