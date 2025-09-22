@@ -5,6 +5,7 @@
 #include <SFML/Graphics.hpp>
 
 #include "tile.hpp"
+#include "resources.hpp"
 
 namespace Rummage
 {
@@ -13,10 +14,10 @@ namespace Rummage
 	class Slot : public sf::Drawable
 	{
 	private:
-		sf::Shader* m_outlineShader;
+		std::shared_ptr<sf::Shader> m_outlineShader = ResourceManager::getShader(SHADERS_PATH "outline.shader", sf::Shader::Type::Fragment);
 
 		std::unique_ptr<Tile> m_tile;
-		sf::Sprite m_sprite;
+		sf::Sprite m_sprite = sf::Sprite(*ResourceManager::getTexture(ResourceManager::kAtlasPath));
 
 		Board* m_parent = nullptr;
 		sf::Vector2u m_coords = { 0, 0 };
@@ -40,7 +41,7 @@ namespace Rummage
 		void setCoords(sf::Vector2u coords) { m_coords = coords; }
 		void setPosition(sf::Vector2f pos);
 		void setParent(Board* board) { m_parent = board; }
-		bool isMouseOver(sf::Vector2f mousePosView) const;
+		bool isMouseOver(const sf::Vector2f& mousePosView) const;
 
 		void setTile(std::unique_ptr<Tile> tilePtr);
 		void setOutline(bool value) { m_drawOutline = value; }
@@ -48,7 +49,6 @@ namespace Rummage
 		std::unique_ptr<Tile> dropTile();
 		void drawTile(sf::RenderTarget& target, sf::RenderStates states) const;
 
-		void update(sf::Vector2f mousePosView);
 		virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 	};
 }

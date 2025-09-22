@@ -2,9 +2,11 @@
 
 #include <map>
 #include <string>
+#include <memory>
 
 #include <SFML/Graphics.hpp>
 
+#define RESOURCES_PATH "../../../../resources/"
 #define IMAGES_PATH "../../../../resources/images/"
 #define SHADERS_PATH "../../../../resources/shaders/"
 
@@ -16,21 +18,25 @@ namespace Rummage
 		const static std::vector<std::string> kAllowedExtensions;
 		const static std::string kInvalidPath;
 
-		static std::map<std::string, sf::Texture*> m_textureMap;
-		static std::map<std::string, sf::Shader*> m_shaderMap;
+		static std::map<std::string, std::shared_ptr<sf::Texture>> m_textureMap;
+		static std::map<std::string, std::shared_ptr<sf::Shader>> m_shaderMap; // <- Shaders should have a name key not file path
+		static std::map<std::string, std::shared_ptr<sf::Font>> m_fontMap;
 	public:
 		const static std::string kAtlasPath;
 
 		// Texture functions
 
-		static sf::Texture* getTexture(const std::string& filePath);
+		static std::shared_ptr<sf::Texture> getTexture(const std::string& filePath);
 		static void preLoadTextures();
-		static void clearTextures();
 
 		// Shader functions
 
-		static sf::Shader* getShader(const std::string& filePath, sf::Shader::Type type);
+		static std::shared_ptr<sf::Shader> getShader(const std::string& filePath, sf::Shader::Type type);
 		static void preLoadShaders();
-		static void clearShaders();
+
+		// Font functions
+
+		static std::shared_ptr<sf::Font> getFont(const std::string& filePath);
+		static void preLoadFonts();
 	};
 }

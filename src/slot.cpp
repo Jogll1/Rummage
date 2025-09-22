@@ -12,19 +12,10 @@ namespace Rummage
 {
 	// Constructor
 
-	Slot::Slot() : m_tile(nullptr), m_sprite(*ResourceManager::getTexture(ResourceManager::kAtlasPath))
+	Slot::Slot() : m_tile(nullptr)
 	{
-		// Load sprite
+		// Set sprite rect
 		m_sprite.setTextureRect(sf::IntRect({0, 0}, {kSlotSize + 4, kSlotSize + 4}));
-
-		// Load shader
-		m_outlineShader = ResourceManager::getShader(SHADERS_PATH "outline.shader", sf::Shader::Type::Fragment);
-
-		// Set shader uniforms
-		m_outlineShader->setUniform("texture", m_sprite.getTexture());
-		m_outlineShader->setUniform("offsetX", 1.0f / m_sprite.getTexture().getSize().x);
-		m_outlineShader->setUniform("offsetY", 1.0f / m_sprite.getTexture().getSize().y);
-		m_outlineShader->setUniform("colour", sf::Glsl::Vec4 {1.0, 1.0, 1.0, 1.0});
 	}
 
 	// Public functions
@@ -39,7 +30,7 @@ namespace Rummage
 		}
 	}
 
-	bool Slot::isMouseOver(sf::Vector2f mousePosView) const
+	bool Slot::isMouseOver(const sf::Vector2f& mousePosView) const
 	{
 		// Factor in gaps in texture
 		sf::FloatRect properBounds = m_sprite.getGlobalBounds();
@@ -73,16 +64,11 @@ namespace Rummage
 		}
 	}
 
-	void Slot::update(sf::Vector2f mousePosView)
-	{
-		
-	}
-
 	void Slot::draw(sf::RenderTarget& target, sf::RenderStates states) const
 	{
 		if (m_drawOutline && m_outlineShader)
 		{
-			target.draw(m_sprite, m_outlineShader);
+			target.draw(m_sprite, m_outlineShader.get());
 		}
 		else
 		{

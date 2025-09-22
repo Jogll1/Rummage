@@ -13,14 +13,15 @@ namespace Rummage
 	const std::string ResourceManager::kInvalidPath = IMAGES_PATH "Invalid.png";
 	const std::string ResourceManager::kAtlasPath = IMAGES_PATH "RummageTextureAtlas.png";
 
-	std::map<std::string, sf::Texture*> ResourceManager::m_textureMap;
-	std::map<std::string, sf::Shader*> ResourceManager::m_shaderMap;
+	std::map<std::string, std::shared_ptr<sf::Texture>> ResourceManager::m_textureMap;
+	std::map<std::string, std::shared_ptr<sf::Shader>> ResourceManager::m_shaderMap;
+	std::map<std::string, std::shared_ptr<sf::Font>> ResourceManager::m_fontMap;
 
 	// Public functions
 
 	// Textures functions
 
-	sf::Texture* ResourceManager::getTexture(const std::string& filePath)
+	std::shared_ptr<sf::Texture> ResourceManager::getTexture(const std::string& filePath)
 	{
 		// Search through the map for the entry
 		for (auto& item : m_textureMap)
@@ -33,7 +34,7 @@ namespace Rummage
 
 		// Create new map item
 
-		sf::Texture* texture = new sf::Texture();
+		std::shared_ptr<sf::Texture> texture = std::make_shared<sf::Texture>();
 		if (!texture->loadFromFile(filePath)) {
 			// If invalid, load the invalid texture path
 			texture->loadFromFile(kInvalidPath);
@@ -48,21 +49,9 @@ namespace Rummage
 		getTexture(kAtlasPath);
 	}
 
-	void ResourceManager::clearTextures()
-	{
-		// Delete all pointer
-
-		for (auto& item : m_textureMap)
-		{
-			delete item.second;
-		}
-
-		m_textureMap.clear();
-	}
-
 	// Shader functions
 
-	sf::Shader* ResourceManager::getShader(const std::string& filePath, sf::Shader::Type type)
+	std::shared_ptr<sf::Shader> ResourceManager::getShader(const std::string& filePath, sf::Shader::Type type)
 	{
 		if (sf::Shader::isAvailable())
 		{
@@ -77,7 +66,7 @@ namespace Rummage
 
 			// Create new map item
 
-			sf::Shader* shader = new sf::Shader();
+			std::shared_ptr<sf::Shader> shader = std::make_shared<sf::Shader>();
 			if (shader->loadFromFile(filePath, type)) {
 				m_shaderMap[filePath] = shader;
 				return m_shaderMap[filePath];
@@ -90,11 +79,14 @@ namespace Rummage
 	void ResourceManager::preLoadShaders()
 	{
 		// Needs:
-		// setUniform("texture", sprite.getTexture());
-		// setUniform("offsetX", 1.0f / sprite.getTexture().getSize().x);
-		// setUniform("offsetY", 1.0f / sprite.getTexture().getSize().y);
-		// setUniform("colour", sf::Glsl::Vec4 {1.0, 1.0, 1.0, 1.0})
-		getShader(SHADERS_PATH "outline.shader", sf::Shader::Type::Fragment);
+		std::shared_ptr<sf::Shader> outlineShader = getShader(SHADERS_PATH "outline.shader", sf::Shader::Type::Fragment);
+		std::shared_ptr<sf::Texture> textureAtlas = getTexture(ResourceManager::kAtlasPath);
+
+		// Set shader uniforms
+		outlineShader->setUniform("texture", *textureAtlas);
+		outlineShader->setUniform("offsetX", 1.0f / (*textureAtlas).getSize().x);
+		outlineShader->setUniform("offsetY", 1.0f / (*textureAtlas).getSize().y);
+		outlineShader->setUniform("colour", sf::Glsl::Vec4{ 1.0, 1.0, 1.0, 1.0 });
 
 		// Needs:
 		// setUniform("texture", sprite.getTexture());
@@ -102,15 +94,31 @@ namespace Rummage
 		getShader(SHADERS_PATH "highlight.shader", sf::Shader::Type::Fragment);
 	}
 
-	void ResourceManager::clearShaders()
+	std::shared_ptr<sf::Font> ResourceManager::getFont(const std::string& filePath)
 	{
-		// Delete all pointer
-
-		for (auto& item : m_shaderMap)
+		// Search through the map for the entry
+		for (auto& item : m_fontMap)
 		{
-			delete item.second;
+			if (item.first == filePath)
+			{
+				return item.second;
+			}
 		}
 
-		m_textureMap.clear();
+		// Create new map item
+
+		std::shared_ptr<sf::Font> font = std::make_shared<sf::Font>();
+		if (!font->openFromFile(filePath)) {
+			// If font invalid, crash (CHANGE)
+			exit(0);
+		}
+
+		m_fontMap[filePath] = font;
+		return m_fontMap[filePath];
+	}
+
+	void ResourceManager::preLoadFonts()
+	{
+		getFont(RESOURCES_PATH "8bit-ascii.ttf");
 	}
 }

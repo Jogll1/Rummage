@@ -51,7 +51,7 @@ namespace Rummage
 
 	// Setters
 
-	void Board::setPos(sf::Vector2f newPos)
+	void Board::setPos(const sf::Vector2f& newPos)
 	{
 		m_pos = newPos; 
 		
@@ -104,11 +104,6 @@ namespace Rummage
 
 		sendTileToFirstSlot(std::move(deck.back()));
 		deck.pop_back();
-	}
-
-	void Board::update(sf::Vector2f mousePosView, bool hasCurrentTile)
-	{
-		
 	}
 
 	void Board::draw(sf::RenderTarget& target, sf::RenderStates states) const 

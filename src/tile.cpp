@@ -6,7 +6,7 @@
 
 namespace Rummage 
 {
-	Tile::Tile(Suit s, Rank r) : m_suit(s), m_rank(r), m_sprite(*ResourceManager::getTexture(ResourceManager::kAtlasPath))
+	Tile::Tile(Suit s, Rank r) : m_suit(s), m_rank(r)
 	{
 		m_isMoving = false;
 

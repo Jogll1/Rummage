@@ -4,10 +4,14 @@
 #include <time.h>
 #include <vector>
 #include <algorithm>
+#include <memory>
 
 #include "board.hpp"
 #include "utils.hpp"
 #include "resources.hpp"
+
+#include "ui/ui.hpp"
+#include "ui/button.hpp"
 
 namespace Rummage
 {
@@ -15,19 +19,12 @@ namespace Rummage
 
 	void Game::initVariables()
 	{
+		m_mainMenuUI = createMenuUI();
+		m_gameUI = createGameUI();
+
+		m_board = nullptr;
+		m_hand = nullptr;
 		m_window = nullptr;
-
-		// Create and position new board and hand
-		m_board = new Board(11u, 11u);
-
-		Padding pad = { 10, 10, 10, 10 };
-		m_hand = new Board(11u, 2u, pad);
-
-		//m_board->setPos({ kInitWindowWidth / 2 - m_board->getSize().x / 2, kInitWindowHeight / 2 - m_board->getSize().y / 2 });
-		m_hand->setPos({ 0, m_board->getSize().y });
-
-		// Create deck
-		createDeck();
 	}
 
 	void Game::initWindow()
@@ -36,15 +33,82 @@ namespace Rummage
 		m_window = new sf::RenderWindow(m_videoMode, "Rummage", kWindowStyle);
 
 		// Set the view to centre on the board
-		resizeView(kInitWindowWidth, kInitWindowHeight);
+		//resizeView(kInitWindowWidth, kInitWindowHeight);
 
 		// Set FPS
 		m_window->setVerticalSyncEnabled(true); // VSync
 		//this->window.setFramerateLimit(60);
 	}
 
+	sf::Vector2f Game::getGameWorldSize() const
+	{
+		if (m_gameStarted)
+		{
+			if (m_board && m_hand)
+			{
+				return WorldObject::getBoundingBoxSize({ *m_board, *m_hand });
+			}
+
+			return sf::Vector2f();
+		}
+		else
+		{
+			std::vector<WorldObject> objs;
+			for (const auto& obj : m_mainMenuUI->getElements())
+			{
+				objs.push_back(*obj);
+			}
+
+			return WorldObject::getBoundingBoxSize(objs);
+		}
+	}
+
+	sf::Vector2f Game::getGameWorldCentre() const
+	{
+		if (m_gameStarted)
+		{
+			if (m_board && m_hand)
+			{
+				return WorldObject::getBoundingBoxCentre({ *m_board, *m_hand });
+			}
+
+			return sf::Vector2f();
+		}
+		else
+		{
+			std::vector<WorldObject> objs;
+			for (const auto& obj : m_mainMenuUI->getElements())
+			{
+				objs.push_back(*obj);
+			}
+
+			return WorldObject::getBoundingBoxCentre(objs);
+		}
+	}
+
+	std::unique_ptr<UI> Game::createMenuUI()
+	{
+		std::unique_ptr<UI> ui = std::make_unique<UI>();
+
+		std::unique_ptr<Button> playButton = std::make_unique<Button>(
+			"Play", sf::IntRect({132, 0}, {44, 22}), sf::IntRect({ 176, 0 }, { 44, 22 }), std::bind(&Game::startGame, this)
+		);
+		ui->addElement(std::move(playButton));
+
+		return std::move(ui);
+	}
+
+	std::unique_ptr<UI> Game::createGameUI()
+	{
+		std::unique_ptr<UI> ui = std::make_unique<UI>();
+
+		return std::move(ui);
+	}
+
 	void Game::createDeck()
 	{
+		m_deck.clear();
+
 		// 2 * 4 suits * 12 ranks + 2 jokers = 98 tiles
 		for (size_t i = 0; i < 2; i++)
 		{
@@ -73,10 +137,10 @@ namespace Rummage
 	// Swaps the tiles at From and To if they are valid in their destinations.
 	// A tile is valid if:
 	// - It has no immediate neighbours in the cardinal directions OR
-	// - It forms a sequence:
-	//   - of the same rank OR
-	//   - of the same suit where ranks go up by 1 in the same direction (i.e. A, 2, 3 not A, 2, A)
-	// Jokers can be any suit or rank.
+	// - It forms a Meld that is:
+	//   - A Set: tiles have the same rank (max one of each suit) OR
+	//   - A Run: tiles form a sequence in the same direction
+	// (NOT IMPLEMENTED) Jokers can be any suit or rank.
 	bool Game::canSwap(Slot& from, Slot& to)
 	{
 		// Assumes that m_currentTile is the tile represented by from
@@ -262,11 +326,9 @@ namespace Rummage
 
 	// Handle dragging an dropping tiles in slots.
 	// Tiles can be dragged between the hand and the board.
-	void Game::handleDragAndDrop(const std::optional<sf::Event> event)
+	void Game::handleDragAndDrop(const sf::Vector2f& mousePosView, const std::optional<sf::Event> event)
 	{
 		if (!event.has_value()) return;
-
-		sf::Vector2f mousePosView = getMousePosView();
 
 		if (m_currentTile)
 		{
@@ -391,6 +453,8 @@ namespace Rummage
 
 	void Game::pollEvents()
 	{
+		sf::Vector2f mousePosView = getMousePosView();
+
 		while (const std::optional event = m_window->pollEvent())
 		{
 			if (event->is<sf::Event::Closed>())
@@ -424,24 +488,60 @@ namespace Rummage
 				}
 			}
 
-			handleDragAndDrop(event);
+			// Drag and Drop and UI
+			if (m_gameStarted)
+			{
+				handleDragAndDrop(mousePosView, event);
+				m_gameUI->handleEvents(mousePosView, event);
+			}
+			else
+			{
+				m_mainMenuUI->handleEvents(mousePosView, event);
+			}
 		}
+	}
+
+	void Game::startGame()
+	{
+		// Reset old stuff
+		delete m_board;
+		delete m_hand;
+
+		m_currentTile.reset();
+		Slot* m_lastSlot = nullptr;
+
+		// Create and position new board and hand
+		m_board = new Board(11u, 11u);
+
+		Padding pad = { 10, 10, 10, 10 };
+		m_hand = new Board(11u, 2u, pad);
+
+		//m_board->setPos({ kInitWindowWidth / 2 - m_board->getSize().x / 2, kInitWindowHeight / 2 - m_board->getSize().y / 2 });
+		m_hand->setPos({ 0, m_board->getSize().y });
+
+		// Create deck
+		createDeck();
+
+		m_gameStarted = true;
+		resizeView(m_window->getSize().x, m_window->getSize().y);
 	}
 
 	void Game::resizeView(int windowWidth, int windowHeight)
 	{
 		// Make view fit the game board while keeping the board's aspect and an integer scaling
+		if (getGameWorldSize().x != 0 && getGameWorldSize().y != 0)
+		{
+			// Calculate view size based on integer scale
+			int scale = std::max(1.f, std::min(windowWidth / getGameWorldSize().x, windowHeight / getGameWorldSize().y));
 
-		// Calculate view size based on integer scale
-		int scale = std::max(1.f, std::min(windowWidth / getGameWorldSize().x, windowHeight / getGameWorldSize().y));
+			float viewWidth = std::floor(static_cast<float>(windowWidth) / scale);
+			float viewHeight = std::floor(static_cast<float>(windowHeight) / scale);
 
-		float viewWidth = std::floor(static_cast<float>(windowWidth) / scale);
-		float viewHeight = std::floor(static_cast<float>(windowHeight) / scale);
+			m_view.setSize({ viewWidth, viewHeight });
+			m_view.setCenter({ std::floor(getGameWorldCentre().x), std::floor(getGameWorldCentre().y) });
 
-		m_view.setSize({ viewWidth, viewHeight });
-		m_view.setCenter({ std::floor(getGameWorldCentre().x), std::floor(getGameWorldCentre().y) });
-
-		m_window->setView(m_view);
+			m_window->setView(m_view);
+		}
 	}
 
 	// Constructor and Destructor
@@ -476,7 +576,7 @@ namespace Rummage
 	{
 		pollEvents();
 
-		sf::Vector2f mousePosView = m_window->mapPixelToCoords(sf::Mouse::getPosition(*m_window));
+		sf::Vector2f mousePosView = getMousePosView();
 
 		//m_board->update(mousePosView, m_currentTile != nullptr);
 		//m_hand->update(mousePosView, m_currentTile != nullptr);
@@ -513,6 +613,16 @@ namespace Rummage
 		if (m_currentTile)
 		{
 			m_window->draw(*m_currentTile);
+		}
+
+		// UI
+		if (m_gameStarted)
+		{
+			m_window->draw(*m_gameUI);
+		}
+		else
+		{
+			m_window->draw(*m_mainMenuUI);
 		}
 
 		m_window->display();

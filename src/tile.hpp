@@ -2,6 +2,8 @@
 
 #include <SFML/Graphics.hpp>
 
+#include "resources.hpp"
+
 namespace Rummage 
 {
 	enum Suit : uint8_t {
@@ -41,7 +43,7 @@ namespace Rummage
 
 		bool m_isMoving = false;
 
-		sf::Sprite m_sprite;
+		sf::Sprite m_sprite = sf::Sprite(*ResourceManager::getTexture(ResourceManager::kAtlasPath));
 	public:
 		static const unsigned int kTileSize = 18;
 

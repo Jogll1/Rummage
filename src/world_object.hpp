@@ -19,6 +19,8 @@ namespace Rummage
 		sf::Vector2f m_pos = { 0, 0 };    // Position of the board in pixels
 		sf::Vector2f m_size = { 0, 0 };   // Size of board in pixels
 	public:
+		virtual ~WorldObject() = default;
+
 		// Getters
 
 		sf::Vector2f getPos() const { return m_pos; }
@@ -27,7 +29,7 @@ namespace Rummage
 
 		// Setters
 
-		virtual void setPos(sf::Vector2f newPos) { m_pos = newPos; } // Override to move the sprite
+		virtual void setPos(const sf::Vector2f& newPos) { m_pos = newPos; } // Override to move the sprite
 
 		// Static utility methods
 

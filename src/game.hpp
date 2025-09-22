@@ -10,6 +10,8 @@
 
 #include "board.hpp"
 
+#include "ui/ui.hpp"
+
 namespace Rummage 
 {
 	// Wrapper class for the game engine
@@ -38,20 +40,32 @@ namespace Rummage
 		std::unique_ptr<Tile> m_currentTile = nullptr; // Only allow one tile to be moved at a time
 		Slot* m_lastSlot = nullptr;                    // Default to a slot once a move is cancelled
 
+		bool m_gameStarted = false;
+
+		// UI
+
+		std::unique_ptr<UI> m_mainMenuUI = nullptr;
+		std::unique_ptr<UI> m_gameUI = nullptr;
+
 		// Private functions
 
 		void initVariables();
 		void initWindow();
 
-		sf::Vector2f getGameWorldSize() const { return WorldObject::getBoundingBoxSize({ *m_board, *m_hand }); }
-		sf::Vector2f getGameWorldCentre() const { return WorldObject::getBoundingBoxCentre({ *m_board, *m_hand }); }
+		sf::Vector2f getGameWorldSize() const;
+		sf::Vector2f getGameWorldCentre() const;
 		sf::Vector2f getMousePosView() const { return m_window->mapPixelToCoords(sf::Mouse::getPosition(*m_window)); }
+
+		std::unique_ptr<UI> createMenuUI();
+		std::unique_ptr<UI> createGameUI();
 
 		void createDeck();
 		bool canSwap(Slot& from, Slot& to);
 
-		void handleDragAndDrop(const std::optional<sf::Event> event);
+		void handleDragAndDrop(const sf::Vector2f& mousePosView, const std::optional<sf::Event> event);
 		void pollEvents();
+
+		void startGame();
 
 		void resizeView(int windowWidth, int windowHeight);
 	public:
