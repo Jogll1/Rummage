@@ -158,7 +158,10 @@ namespace Rummage
 
 		actionMenu->addElement(std::move(drawButton));
 		actionMenu->addElement(std::move(clearButton));
-		actionMenu->setPos(m_hand->getPos() + sf::Vector2f(m_hand->getSize().x, (m_hand->getSize().y - actionMenu->getSize().y) / 2.f));
+		actionMenu->setPos(m_hand->getPos() + sf::Vector2f(
+			std::floor(m_hand->getSize().x - m_hand->getPadding().r + (m_hand->getPadding().r - actionMenu->getSize().x) / 2.f), // Sketchy, I know
+			std::floor((m_hand->getSize().y - actionMenu->getSize().y) / 2.f))
+		);
 
 		ui->addElement(std::move(actionMenu));
 
@@ -674,20 +677,23 @@ namespace Rummage
 	{
 		m_window->clear(sf::Color(92, 214, 92));
 
-		// Draw background
-		/*sf::RectangleShape background(sf::Vector2f(m_view.getSize().x, m_view.getSize().y));
-		background.setFillColor(sf::Color(92, 214, 92));
-		m_window->draw(background);*/
-
 		// Draw board
 		if (m_board)
 		{
+			/*sf::RectangleShape test(m_board->getSize());
+			test.setPosition(m_board->getPos());
+			m_window->draw(test);*/
+
 			m_window->draw(*m_board);
 		}
 
 		// Draw hand
 		if (m_hand)
 		{
+			/*sf::RectangleShape test(m_hand->getSize());
+			test.setPosition(m_hand->getPos());
+			m_window->draw(test);*/
+
 			m_window->draw(*m_hand);
 		}
 

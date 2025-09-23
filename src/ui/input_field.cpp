@@ -1,4 +1,5 @@
 #include "input_field.hpp"
+#include "../utils.hpp"
 
 namespace Rummage
 {
@@ -25,7 +26,9 @@ namespace Rummage
 
 		// Always align text to right
 		sf::Vector2f textSize = m_text.getGlobalBounds().size;
-		m_text.setPosition(getCentrePos() - sf::Vector2f(getSize().x / 2.f - 4.f, textSize.y / 2.f + 0.5f) + sf::Vector2f(m_padding.l, m_padding.t));
+		m_text.setPosition(roundVector(
+			getCentrePos() - sf::Vector2f(getSize().x / 2.f - 4.f, textSize.y / 2.f + 0.5f) + sf::Vector2f(m_padding.l, m_padding.t)
+		));
 	}
 	
 	// Public functions

@@ -21,7 +21,7 @@ namespace Rummage
 
 		std::vector<Slot> m_slots;
 	public:
-		Board(unsigned int tilesX, unsigned int tilesY, unsigned int gap = 2, sf::Vector2f pos = { 0, 0 }, Padding padding = { 10, 10, 10, 10 });
+		Board(unsigned int tilesX, unsigned int tilesY, unsigned int gap = 2, sf::Vector2f pos = { 0, 0 }, Padding padding = { 45, 45, 10, 10 });
 		virtual ~Board() = default;
 
 		// Getters

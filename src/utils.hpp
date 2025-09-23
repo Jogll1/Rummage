@@ -15,4 +15,9 @@ namespace Rummage
 			std::cout << "\n";
 		}
 	}
+
+	static inline sf::Vector2f roundVector(sf::Vector2f vector)
+	{
+		return sf::Vector2f(std::floor(vector.x), std::floor(vector.y));
+	}
 }

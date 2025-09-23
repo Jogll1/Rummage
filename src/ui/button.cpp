@@ -1,4 +1,5 @@
 #include "button.hpp"
+#include "../utils.hpp"
 
 namespace Rummage
 {
@@ -27,7 +28,9 @@ namespace Rummage
 		m_spriteNormal.setPosition(newPos + sf::Vector2f(m_padding.l, m_padding.t));
 		m_spriteClicked.setPosition(newPos + sf::Vector2f(m_padding.l, m_padding.t));
 
-		m_text.setPosition(getCentrePos() - m_text.getGlobalBounds().size / 2.f + sf::Vector2f(0, -1.5f) + sf::Vector2f(m_padding.l, m_padding.t));
+		m_text.setPosition(roundVector(
+			getCentrePos() - m_text.getGlobalBounds().size / 2.f + sf::Vector2f(0, -1.5f) + sf::Vector2f(m_padding.l, m_padding.t)
+		));
 	}
 
 	// Public functions

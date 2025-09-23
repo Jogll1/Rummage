@@ -39,6 +39,7 @@ namespace Rummage
 		sf::Vector2f getPos() const { return m_pos; }
 		sf::Vector2f getCentrePos() const { return m_pos + m_size / 2.f; }
 		sf::Vector2f getSize() const { return m_size; }
+		Padding getPadding() const { return m_padding; }
 
 		// Setters
 

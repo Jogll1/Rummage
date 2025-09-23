@@ -59,8 +59,8 @@ namespace Rummage
 		for (unsigned int y = 0; y < m_slotsY; y++) {
 			for (unsigned int x = 0; x < m_slotsX; x++) {
 				sf::Vector2f pos = sf::Vector2f(
-					static_cast<float>(m_pos.x + m_padding.l + (Tile::kTileSize + m_gap) * x),
-					static_cast<float>(m_pos.y + m_padding.t + (Tile::kTileSize + m_gap) * y)
+					static_cast<float>(m_pos.x + m_padding.l + (Tile::kTileSize + m_gap) * x - m_gap),
+					static_cast<float>(m_pos.y + m_padding.t + (Tile::kTileSize + m_gap) * y - m_gap)
 				);
 
 				m_slots[y * m_slotsX + x].setPosition(pos);
