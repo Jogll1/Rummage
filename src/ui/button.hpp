@@ -30,6 +30,8 @@ namespace Rummage
 	public:
 		Button(const std::string& text, sf::IntRect normalRect, sf::IntRect clickedRect, std::function<void()> onClick, sf::Vector2f pos = { 0, 0 });
 
+		bool isActive = true;
+
 		// Setters
 
 		virtual void setPos(const sf::Vector2f& newPos) override;

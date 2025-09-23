@@ -3,7 +3,7 @@
 namespace Rummage
 {
 	Button::Button(const std::string& text, sf::IntRect normalRect, sf::IntRect clickedRect, std::function<void()> onClick, sf::Vector2f pos)
-		: m_onClick(onClick)
+		: UIObject(pos), m_onClick(onClick)
 	{
 		m_spriteNormal.setTextureRect(normalRect);
 		m_spriteClicked.setTextureRect(clickedRect);
@@ -24,10 +24,10 @@ namespace Rummage
 	void Button::setPos(const sf::Vector2f& newPos)
 	{
 		m_pos = newPos;
-		m_spriteNormal.setPosition(newPos);
-		m_spriteClicked.setPosition(newPos);
+		m_spriteNormal.setPosition(newPos + sf::Vector2f(m_padding.l, m_padding.t));
+		m_spriteClicked.setPosition(newPos + sf::Vector2f(m_padding.l, m_padding.t));
 
-		m_text.setPosition(getCentrePos() - m_text.getGlobalBounds().size / 2.f + sf::Vector2f(0, -1.5f));
+		m_text.setPosition(getCentrePos() - m_text.getGlobalBounds().size / 2.f + sf::Vector2f(0, -1.5f) + sf::Vector2f(m_padding.l, m_padding.t));
 	}
 
 	// Public functions
@@ -42,7 +42,7 @@ namespace Rummage
 
 	void Button::handleEvents(const sf::Vector2f& mousePos, const std::optional<sf::Event> event)
 	{
-		if (visible)
+		if (visible && isActive)
 		{
 			// Check for click
 			if (isMouseOver(mousePos) && !m_isClicked)

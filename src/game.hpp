@@ -60,6 +60,7 @@ namespace Rummage
 		std::unique_ptr<UI> createGameUI();
 
 		void createDeck();
+		void drawToHand();
 		bool canSwap(Slot& from, Slot& to);
 
 		void handleDragAndDrop(const sf::Vector2f& mousePosView, const std::optional<sf::Event> event);

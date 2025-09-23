@@ -21,11 +21,11 @@ namespace Rummage
 	void InputField::setPos(const sf::Vector2f& newPos)
 	{
 		m_pos = newPos;
-		m_sprite.setPosition(newPos);
+		m_sprite.setPosition(newPos + sf::Vector2f(m_padding.l, m_padding.t));
 
 		// Always align text to right
 		sf::Vector2f textSize = m_text.getGlobalBounds().size;
-		m_text.setPosition(getCentrePos() - sf::Vector2f(getSize().x / 2.f - 4.f, textSize.y / 2.f + 0.5f));
+		m_text.setPosition(getCentrePos() - sf::Vector2f(getSize().x / 2.f - 4.f, textSize.y / 2.f + 0.5f) + sf::Vector2f(m_padding.l, m_padding.t));
 	}
 	
 	// Public functions

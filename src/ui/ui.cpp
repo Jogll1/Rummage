@@ -29,7 +29,7 @@ namespace Rummage
 		{
 			auto& obj = m_objs[i];
 
-			if (obj->m_visible)
+			if (obj->visible)
 			{
 				const sf::Vector2f pos(
 					m_padding.l + newPos.x,
@@ -49,7 +49,7 @@ namespace Rummage
 
 		for (auto& obj : m_objs)
 		{
-			if (obj->m_visible)
+			if (obj->visible)
 			{
 				x = std::max(obj->getSize().x, x);
 				y += obj->getSize().y;
