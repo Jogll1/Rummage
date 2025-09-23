@@ -14,7 +14,6 @@ namespace Rummage
 	class Board : public WorldObject, public sf::Drawable
 	{
 	private:
-		Padding m_padding;     // Padding in pixels
 		unsigned int m_gap;    // Gap in pixels
 
 		unsigned int m_slotsX; // How many tiles in the board
@@ -22,8 +21,7 @@ namespace Rummage
 
 		std::vector<Slot> m_slots;
 	public:
-		Board(unsigned int tilesX, unsigned int tilesY, Padding padding = { 10, 10, 10, 10 },
-			  unsigned int gap = 2, sf::Vector2f pos = {0, 0});
+		Board(unsigned int tilesX, unsigned int tilesY, unsigned int gap = 2, sf::Vector2f pos = { 0, 0 }, Padding padding = { 10, 10, 10, 10 });
 		virtual ~Board() = default;
 
 		// Getters

@@ -12,6 +12,7 @@
 
 #include "ui/ui.hpp"
 #include "ui/button.hpp"
+#include "ui/input_field.hpp"
 
 namespace Rummage
 {
@@ -90,20 +91,46 @@ namespace Rummage
 	{
 		std::unique_ptr<UI> ui = std::make_unique<UI>();
 
-		std::unique_ptr<ButtonGroup> buttons = std::make_unique<ButtonGroup>();
-		buttons->setVGap(2.f);
-		buttons->addElement(std::make_unique<Button>(
-			"HOST", sf::IntRect({ 136, 3 }, { 36, 16 }), sf::IntRect({ 180, 3 }, { 36, 16 }), std::bind(&Game::startGame, this)
-		));
-		buttons->addElement(std::make_unique<Button>(
-			"JOIN", sf::IntRect({ 136, 3 }, { 36, 16 }), sf::IntRect({ 180, 3 }, { 36, 16 }), std::bind(&Game::startGame, this)
-		));
-		buttons->addElement(std::make_unique<Button>(
-			"QUIT", sf::IntRect({ 136, 3 }, { 36, 16 }), sf::IntRect({ 180, 3 }, { 36, 16 }), std::bind(&Game::closeWindow, this)
-		));
-		buttons->setPos({ 0, 0 });
+		// === Main ===
 
-		ui->addElement(std::move(buttons));
+		std::unique_ptr<UIVGroup> mainMenu = std::make_unique<UIVGroup>(2.f, sf::Vector2f(0, 0), Padding(2, 2, 2, 2));
+		mainMenu->tag = "main";
+
+		std::unique_ptr<Button> hostButton = std::make_unique<Button>(
+			"HOST", sf::IntRect({ 136, 3 }, { 36, 16 }), sf::IntRect({ 180, 3 }, { 36, 16 }), std::bind(&Game::startGame, this)
+		);
+		std::unique_ptr<Button> joinButton = std::make_unique<Button>(
+			"JOIN", sf::IntRect({ 136, 3 }, { 36, 16 }), sf::IntRect({ 180, 3 }, { 36, 16 }), std::bind(&Game::openJoinMenu, this)
+		);
+		std::unique_ptr<Button> quitButton = std::make_unique<Button>(
+			"QUIT", sf::IntRect({ 136, 3 }, { 36, 16 }), sf::IntRect({ 180, 3 }, { 36, 16 }), std::bind(&Game::closeWindow, this)
+		);
+
+		mainMenu->addElement(std::move(hostButton));
+		mainMenu->addElement(std::move(joinButton));
+		mainMenu->addElement(std::move(quitButton));
+
+		ui->addElement(std::move(mainMenu));
+
+		// === Join === 
+
+		std::unique_ptr<UIVGroup> joinMenu = std::make_unique<UIVGroup>(2.f, sf::Vector2f(0, 0), Padding(2, 2, 2, 2));
+		joinMenu->tag = "join";
+		joinMenu->visible = false;
+
+		std::unique_ptr<InputField> roomInput = std::make_unique<InputField>(sf::IntRect({ 224, 3 }, { 36, 16 }));
+		std::unique_ptr<Button> joinButton2 = std::make_unique<Button>(
+			"JOIN", sf::IntRect({ 136, 3 }, { 36, 16 }), sf::IntRect({ 180, 3 }, { 36, 16 }), std::bind(&Game::startGame, this)
+		);
+		std::unique_ptr<Button> backButton = std::make_unique<Button>(
+			"BACK", sf::IntRect({ 136, 3 }, { 36, 16 }), sf::IntRect({ 180, 3 }, { 36, 16 }), std::bind(&Game::closeJoinMenu, this)
+		);
+
+		joinMenu->addElement(std::move(roomInput));
+		joinMenu->addElement(std::move(joinButton2));
+		joinMenu->addElement(std::move(backButton));
+
+		ui->addElement(std::move(joinMenu));
 
 		return std::move(ui);
 	}
@@ -506,6 +533,16 @@ namespace Rummage
 		}
 	}
 
+	void Game::openJoinMenu()
+	{
+
+	}
+
+	void Game::closeJoinMenu()
+	{
+
+	}
+
 	void Game::startGame()
 	{
 		// Reset old stuff
@@ -517,9 +554,7 @@ namespace Rummage
 
 		// Create and position new board and hand
 		m_board = new Board(11u, 11u);
-
-		Padding pad = { 10, 10, 10, 10 };
-		m_hand = new Board(11u, 2u, pad);
+		m_hand = new Board(11u, 2u);
 
 		//m_board->setPos({ kInitWindowWidth / 2 - m_board->getSize().x / 2, kInitWindowHeight / 2 - m_board->getSize().y / 2 });
 		m_hand->setPos({ 0, m_board->getSize().y });

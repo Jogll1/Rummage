@@ -65,6 +65,8 @@ namespace Rummage
 		void handleDragAndDrop(const sf::Vector2f& mousePosView, const std::optional<sf::Event> event);
 		void pollEvents();
 
+		void openJoinMenu();
+		void closeJoinMenu();
 		void startGame();
 		void closeWindow();
 

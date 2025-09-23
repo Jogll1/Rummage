@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <memory>
+#include <string>
 
 #include <SFML/Graphics.hpp>
 
@@ -12,13 +13,39 @@ namespace Rummage
 	class UIObject : public WorldObject, public sf::Drawable
 	{
 	protected:
-		virtual void setPos(const sf::Vector2f& newPos) override = 0;
 		virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override = 0;
 	public:
-		UIObject() = default;
+		UIObject(sf::Vector2f pos = { 0, 0 }, Padding padding = { 0, 0, 0, 0 }) : WorldObject(pos, padding) {}
 		virtual ~UIObject() = default;
 
+		bool visible = true;
+		std::string tag = "";
+	
+		virtual void setPos(const sf::Vector2f& newPos) override = 0;
 		virtual void handleEvents(const sf::Vector2f& mousePos, const std::optional<sf::Event> event) = 0;
+	};
+
+	class UIVGroup : public UIObject
+	{
+	private:
+		std::vector<std::unique_ptr<UIObject>> m_objs;
+
+		float m_vGap = 0.f;
+	public:
+		UIVGroup(float gap, sf::Vector2f pos = { 0, 0 }, Padding padding = { 0, 0, 0, 0 });
+		~UIVGroup() = default;
+
+		// Setters
+
+		virtual void setPos(const sf::Vector2f& newPos) override;
+		void setSize();
+		void setVGap(float newGap) { m_vGap = newGap; }
+
+		// Public functions
+
+		void addElement(std::unique_ptr<UIObject> obj);
+		virtual void handleEvents(const sf::Vector2f& mousePos, const std::optional<sf::Event> event) override;
+		virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 	};
 
 	class UI : public sf::Drawable

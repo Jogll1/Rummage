@@ -10,10 +10,12 @@ namespace Rummage
 {
 	struct Padding
 	{
-		unsigned int l;
-		unsigned int r;
-		unsigned int t;
-		unsigned int b;
+		int l;
+		int r;
+		int t;
+		int b;
+
+		Padding(int _l, int _r, int _t, int _b) : l(_l), r(_r), t(_t), b(_b) {}
 	};
 
 	// World objects have:
@@ -26,8 +28,10 @@ namespace Rummage
 	protected:
 		sf::Vector2f m_pos = { 0, 0 };  // Position of the board in pixels
 		sf::Vector2f m_size = { 0, 0 }; // Size of board in pixels
+
+		Padding m_padding = { 0, 0, 0, 0 };   // Padding in pixels
 	public:
-		WorldObject() = default;
+		WorldObject(sf::Vector2f pos = {0, 0}, Padding padding = {0, 0, 0, 0}) : m_pos(pos), m_padding(padding) {}
 		virtual ~WorldObject() = default;
 
 		// Getters
@@ -38,6 +42,7 @@ namespace Rummage
 
 		// Setters
 
+		void setPadding(const Padding padding) { m_padding = padding; }
 		virtual void setPos(const sf::Vector2f& newPos) { m_pos = newPos; } // Override to move the sprite
 
 		// Static utility methods

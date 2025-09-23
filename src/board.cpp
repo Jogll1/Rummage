@@ -12,8 +12,8 @@ namespace Rummage
 {
 	// Constructor and Destructor
 
-	Board::Board(unsigned int tilesX, unsigned int tilesY, Padding padding, unsigned int gap, sf::Vector2f pos)
-		: m_slotsX(tilesX), m_slotsY(tilesY), m_padding(padding), m_gap(gap), m_slots(tilesX * tilesY)
+	Board::Board(unsigned int tilesX, unsigned int tilesY, unsigned int gap, sf::Vector2f pos, Padding padding)
+		: WorldObject(pos, padding), m_slotsX(tilesX), m_slotsY(tilesY), m_gap(gap), m_slots(tilesX * tilesY)
 	{
 		// Width:  paddingL + (tile width + gapX) * tilesX - gapX + paddingR
 		// Height: paddingT + (tile height + gapY) * tilesY - gapY + paddingB
