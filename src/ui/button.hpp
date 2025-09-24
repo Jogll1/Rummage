@@ -28,12 +28,13 @@ namespace Rummage
 	protected:
 		virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 	public:
-		Button(const std::string& text, sf::IntRect normalRect, sf::IntRect clickedRect, std::function<void()> onClick, sf::Vector2f pos = { 0, 0 });
+		Button(const std::string& text, sf::IntRect normalRect, sf::IntRect clickedRect, sf::Vector2f pos = { 0, 0 });
 
 		bool isActive = true;
 
 		// Setters
 
+		void setCallback(std::function<void()> onClick);
 		virtual void setPos(const sf::Vector2f& newPos) override;
 
 		// Public functions

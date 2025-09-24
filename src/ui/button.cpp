@@ -3,8 +3,8 @@
 
 namespace Rummage
 {
-	Button::Button(const std::string& text, sf::IntRect normalRect, sf::IntRect clickedRect, std::function<void()> onClick, sf::Vector2f pos)
-		: UIObject(pos), m_onClick(onClick)
+	Button::Button(const std::string& text, sf::IntRect normalRect, sf::IntRect clickedRect, sf::Vector2f pos)
+		: UIObject(pos)
 	{
 		m_spriteNormal.setTextureRect(normalRect);
 		m_spriteClicked.setTextureRect(clickedRect);
@@ -21,6 +21,11 @@ namespace Rummage
 	}
 
 	// Setters
+
+	void Button::setCallback(std::function<void()> onClick)
+	{
+		m_onClick = std::move(onClick);
+	}
 
 	void Button::setPos(const sf::Vector2f& newPos)
 	{

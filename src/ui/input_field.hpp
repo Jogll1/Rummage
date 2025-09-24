@@ -9,6 +9,9 @@
 
 namespace Rummage
 {
+	// TODO: - Add placeholder text when m_value = "";
+	//       - Add blinking caret when focused
+
 	class InputField : public UIObject
 	{
 	private:
@@ -17,7 +20,7 @@ namespace Rummage
 
 		sf::Sprite m_sprite = sf::Sprite(*ResourceManager::getTexture(ResourceManager::kAtlasPath));
 
-		sf::String m_value = "Test";
+		sf::String m_value = "";
 		sf::Text m_text = sf::Text(*ResourceManager::getFont(RESOURCES_PATH "8bit-ascii.ttf"));
 
 		/*sf::Clock m_caretClock;

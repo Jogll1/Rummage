@@ -21,9 +21,6 @@ namespace Rummage
 
 	void Game::initVariables()
 	{
-		m_mainMenuUI = createMenuUI();
-		m_gameUI = nullptr;
-
 		m_board = nullptr;
 		m_hand = nullptr;
 		m_window = nullptr;
@@ -34,7 +31,7 @@ namespace Rummage
 		m_videoMode = sf::VideoMode({ kInitWindowWidth, kInitWindowHeight });
 		m_window = new sf::RenderWindow(m_videoMode, "Rummage", kWindowStyle);
 
-		// Set the view to centre on the board
+		// Set the window to centre on the view contents
 		resizeView(kInitWindowWidth, kInitWindowHeight);
 
 		// Set FPS
@@ -86,86 +83,6 @@ namespace Rummage
 
 			return WorldObject::getBoundingBoxCentre(objs);
 		}
-	}
-
-	std::unique_ptr<UI> Game::createMenuUI()
-	{
-		std::unique_ptr<UI> ui = std::make_unique<UI>();
-
-		std::unique_ptr<UIImage> logo = std::make_unique<UIImage>(sf::IntRect({ 286, 22 }, { 74, 74 }), sf::Vector2f(0, 0), Padding(10, 10, 10, 4));
-		sf::Vector2f logoSize = logo->getSize();
-
-		// === Main ===
-
-		std::unique_ptr<UIVGroup> mainMenu = std::make_unique<UIVGroup>(2.f, sf::Vector2f(0, 0), Padding(0, 0, 4, 4));
-		mainMenu->tag = "main";
-
-		std::unique_ptr<Button> hostButton = std::make_unique<Button>(
-			"HOST", sf::IntRect({ 136, 3 }, { 36, 16 }), sf::IntRect({ 180, 3 }, { 36, 16 }), std::bind(&Game::startGame, this)
-		);
-		std::unique_ptr<Button> joinButton = std::make_unique<Button>(
-			"JOIN", sf::IntRect({ 136, 3 }, { 36, 16 }), sf::IntRect({ 180, 3 }, { 36, 16 }), std::bind(&Game::openJoinMenu, this)
-		);
-		std::unique_ptr<Button> quitButton = std::make_unique<Button>(
-			"QUIT", sf::IntRect({ 136, 3 }, { 36, 16 }), sf::IntRect({ 180, 3 }, { 36, 16 }), std::bind(&Game::closeWindow, this)
-		);
-
-		mainMenu->addElement(std::move(hostButton));
-		mainMenu->addElement(std::move(joinButton));
-		mainMenu->addElement(std::move(quitButton));
-		mainMenu->setPos({ logoSize.x / 2.f - mainMenu->getSize().x / 2.f, logoSize.y });
-
-		// === Join === 
-
-		std::unique_ptr<UIVGroup> joinMenu = std::make_unique<UIVGroup>(2.f, sf::Vector2f(0, 0), Padding(0, 0, 0, 4));
-		joinMenu->tag = "join";
-		joinMenu->visible = false;
-
-		std::unique_ptr<InputField> roomInput = std::make_unique<InputField>(sf::IntRect({ 224, 3 }, { 36, 16 }));
-		std::unique_ptr<Button> playButton = std::make_unique<Button>(
-			"PLAY", sf::IntRect({ 136, 3 }, { 36, 16 }), sf::IntRect({ 180, 3 }, { 36, 16 }), std::bind(&Game::startGame, this)
-		);
-		std::unique_ptr<Button> backButton = std::make_unique<Button>(
-			"BACK", sf::IntRect({ 136, 3 }, { 36, 16 }), sf::IntRect({ 180, 3 }, { 36, 16 }), std::bind(&Game::closeJoinMenu, this)
-		);
-
-		joinMenu->addElement(std::move(roomInput));
-		joinMenu->addElement(std::move(playButton));
-		joinMenu->addElement(std::move(backButton));
-		joinMenu->setPos({ logoSize.x / 2.f - joinMenu->getSize().x / 2.f, logoSize.y });
-
-		// === Adding ===
-		
-		ui->addElement(std::move(logo));
-		ui->addElement(std::move(mainMenu));
-		ui->addElement(std::move(joinMenu));
-
-		return std::move(ui);
-	}
-
-	std::unique_ptr<UI> Game::createGameUI()
-	{
-		std::unique_ptr<UI> ui = std::make_unique<UI>();
-
-		std::unique_ptr<UIVGroup> actionMenu = std::make_unique<UIVGroup>(2.f, sf::Vector2f(0, 0));
-
-		std::unique_ptr<Button> drawButton = std::make_unique<Button>(
-			"DRAW", sf::IntRect({ 136, 3 }, { 36, 16 }), sf::IntRect({ 180, 3 }, { 36, 16 }), std::bind(&Game::drawToHand, this)
-		);
-		std::unique_ptr<Button> clearButton = std::make_unique<Button>(
-			"CLEAR", sf::IntRect({ 136, 3 }, { 36, 16 }), sf::IntRect({ 180, 3 }, { 36, 16 }), std::bind(&Game::drawToHand, this)
-		);
-
-		actionMenu->addElement(std::move(drawButton));
-		actionMenu->addElement(std::move(clearButton));
-		actionMenu->setPos(m_hand->getPos() + sf::Vector2f(
-			std::floor(m_hand->getSize().x - m_hand->getPadding().r + (m_hand->getPadding().r - actionMenu->getSize().x) / 2.f), // Sketchy, I know
-			std::floor((m_hand->getSize().y - actionMenu->getSize().y) / 2.f))
-		);
-
-		ui->addElement(std::move(actionMenu));
-
-		return std::move(ui);
 	}
 
 	void Game::createDeck()
@@ -552,31 +469,11 @@ namespace Rummage
 			}
 
 			// Drag and Drop and UI
-			if (m_gameStarted)
+			/*if (m_gameStarted)
 			{
 				handleDragAndDrop(mousePosView, event);
 				m_gameUI->handleEvents(mousePosView, event);
-			}
-			else
-			{
-				m_mainMenuUI->handleEvents(mousePosView, event);
-			}
-		}
-	}
-
-	void Game::openJoinMenu()
-	{
-		for (auto& obj : m_mainMenuUI->getElements())
-		{
-			obj->visible = obj->tag != "main";
-		}
-	}
-
-	void Game::closeJoinMenu()
-	{
-		for (auto& obj : m_mainMenuUI->getElements())
-		{
-			obj->visible = obj->tag != "join";
+			}*/
 		}
 	}
 
@@ -599,16 +496,8 @@ namespace Rummage
 		// Create deck
 		createDeck();
 
-		// Create UI
-		m_gameUI = createGameUI();
-
 		m_gameStarted = true;
 		resizeView(m_window->getSize().x, m_window->getSize().y);
-	}
-
-	void Game::closeWindow()
-	{
-		m_window->close();
 	}
 
 	void Game::resizeView(int windowWidth, int windowHeight)
@@ -655,7 +544,19 @@ namespace Rummage
 		delete m_hand;
 	}
 
+	// Getters
+
+	bool Game::isRunning() const
+	{
+		return m_window->isOpen();
+	}
+
 	// Public functions
+
+	void Game::closeWindow()
+	{
+		m_window->close();
+	}
 
 	void Game::update()
 	{
@@ -703,23 +604,6 @@ namespace Rummage
 			m_window->draw(*m_currentTile);
 		}
 
-		// UI
-		if (m_gameStarted)
-		{
-			m_window->draw(*m_gameUI);
-		}
-		else
-		{
-			m_window->draw(*m_mainMenuUI);
-		}
-
 		m_window->display();
-	}
-
-	// Getters
-
-	bool Game::isRunning() const
-	{
-		return m_window->isOpen();
 	}
 }

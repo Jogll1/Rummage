@@ -42,11 +42,6 @@ namespace Rummage
 
 		bool m_gameStarted = false;
 
-		// UI
-
-		std::unique_ptr<UI> m_mainMenuUI = nullptr;
-		std::unique_ptr<UI> m_gameUI = nullptr;
-
 		// Private functions
 
 		void initVariables();
@@ -56,9 +51,6 @@ namespace Rummage
 		sf::Vector2f getGameWorldCentre() const;
 		sf::Vector2f getMousePosView() const { return m_window->mapPixelToCoords(sf::Mouse::getPosition(*m_window)); }
 
-		std::unique_ptr<UI> createMenuUI();
-		std::unique_ptr<UI> createGameUI();
-
 		void createDeck();
 		void drawToHand();
 		bool canSwap(Slot& from, Slot& to);
@@ -66,23 +58,22 @@ namespace Rummage
 		void handleDragAndDrop(const sf::Vector2f& mousePosView, const std::optional<sf::Event> event);
 		void pollEvents();
 
-		void openJoinMenu();
-		void closeJoinMenu();
 		void startGame();
-		void closeWindow();
 
 		void resizeView(int windowWidth, int windowHeight);
 	public:
 		Game();
 		virtual ~Game();
 
-		// Public functions
-		
-		void update();
-		void render();
-		
 		// Getters
 
 		bool isRunning() const;
+
+		// Public functions
+		
+		void closeWindow();
+
+		void update();
+		void render();
 	};
 }
