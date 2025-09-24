@@ -28,7 +28,7 @@ namespace Rummage
 		// Public functions
 
 		virtual void handleEvents(const sf::Vector2f& mousePosView, const std::optional<sf::Event> event) = 0;
-		virtual void update() = 0;
+		virtual void update(const sf::Vector2f& mousePosView) = 0;
 		virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override = 0;
 	};
 }

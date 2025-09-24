@@ -10,17 +10,24 @@ namespace Rummage
 		m_scenes.push(std::move(scene));
 	}
 
+	void SceneManager::requestPop()
+	{
+		// Executions must be finished before a scene can be popped
+		m_popRequested = true;
+	}
+
 	void SceneManager::popScene()
 	{
 		if (!m_scenes.empty())
 		{
 			m_scenes.pop();
+			m_popRequested = false;
 		}
 	}
 
 	void SceneManager::changeScene(std::unique_ptr<Scene> scene)
 	{
-		popScene();
+		requestPop();
 		pushScene(std::move(scene));
 	}
 
@@ -28,6 +35,6 @@ namespace Rummage
 	{
 		if (m_scenes.empty()) return nullptr;
 
-		return m_scenes.top().get();
+		return m_scenes.front().get();
 	}
 }

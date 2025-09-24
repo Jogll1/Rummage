@@ -15,10 +15,8 @@ namespace Rummage
 	private:
 		void openJoinMenu();
 		void closeJoinMenu();
-		void startGame();
 
 		std::unique_ptr<UI> createMenuUI();
-
 	public:
 		MenuScene(Game& game);
 
@@ -29,7 +27,7 @@ namespace Rummage
 		// Public functions
 
 		void handleEvents(const sf::Vector2f& mousePosView, const std::optional<sf::Event> event) override;
-		void update() override;
+		void update(const sf::Vector2f& mousePosView) override;
 		void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 	};
 }

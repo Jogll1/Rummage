@@ -30,11 +30,6 @@ namespace Rummage
 		}
 	}
 
-	void MenuScene::startGame()
-	{
-		
-	}
-
 	std::unique_ptr<UI> MenuScene::createMenuUI()
 	{
 		std::unique_ptr<UI> ui = std::make_unique<UI>();
@@ -48,7 +43,7 @@ namespace Rummage
 		mainMenu->tag = "main";
 
 		std::unique_ptr<Button> hostButton = std::make_unique<Button>("HOST", sf::IntRect({ 136, 3 }, { 36, 16 }), sf::IntRect({ 180, 3 }, { 36, 16 }));
-		hostButton->setCallback([this]() { this->startGame(); });
+		hostButton->setCallback([this]() { this->m_game.startGame(); });
 		std::unique_ptr<Button> joinButton = std::make_unique<Button>("JOIN", sf::IntRect({ 136, 3 }, { 36, 16 }), sf::IntRect({ 180, 3 }, { 36, 16 }));
 		joinButton->setCallback([this]() { this->openJoinMenu(); });
 		std::unique_ptr<Button> quitButton = std::make_unique<Button>("QUIT", sf::IntRect({ 136, 3 }, { 36, 16 }), sf::IntRect({ 180, 3 }, { 36, 16 }));
@@ -67,9 +62,9 @@ namespace Rummage
 
 		std::unique_ptr<InputField> roomInput = std::make_unique<InputField>(sf::IntRect({ 224, 3 }, { 36, 16 }));
 		std::unique_ptr<Button> playButton = std::make_unique<Button>("PLAY", sf::IntRect({ 136, 3 }, { 36, 16 }), sf::IntRect({ 180, 3 }, { 36, 16 }));
-		playButton->setCallback([this]() { this->startGame(); });
+		playButton->setCallback([this]() { this->m_game.startGame(); });
 		std::unique_ptr<Button> backButton = std::make_unique<Button>("BACK", sf::IntRect({ 136, 3 }, { 36, 16 }), sf::IntRect({ 180, 3 }, { 36, 16 }));
-		playButton->setCallback([this]() { this->closeJoinMenu(); });
+		backButton->setCallback([this]() { this->closeJoinMenu(); });
 
 		joinMenu->addElement(std::move(roomInput));
 		joinMenu->addElement(std::move(playButton));
@@ -113,7 +108,7 @@ namespace Rummage
 		m_UI->handleEvents(mousePosView, event);
 	}
 
-	void MenuScene::update()
+	void MenuScene::update(const sf::Vector2f& mousePosView)
 	{
 
 	}

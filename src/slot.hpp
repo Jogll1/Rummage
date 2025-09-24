@@ -15,9 +15,9 @@ namespace Rummage
 	{
 	private:
 		std::shared_ptr<sf::Shader> m_outlineShader = ResourceManager::getShader(SHADERS_PATH "outline.shader", sf::Shader::Type::Fragment);
+		sf::Sprite m_sprite = sf::Sprite(*ResourceManager::getTexture(ResourceManager::kAtlasPath));
 
 		std::unique_ptr<Tile> m_tile;
-		sf::Sprite m_sprite = sf::Sprite(*ResourceManager::getTexture(ResourceManager::kAtlasPath));
 
 		Board* m_parent = nullptr;
 		sf::Vector2u m_coords = { 0, 0 };

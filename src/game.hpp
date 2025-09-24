@@ -9,8 +9,7 @@
 #include <SFML/Audio.hpp>
 
 #include "board.hpp"
-
-#include "ui/ui.hpp"
+#include "scenes/scene_manager.hpp"
 
 namespace Rummage 
 {
@@ -26,51 +25,44 @@ namespace Rummage
 
 		static const int kWindowStyle = sf::Style::Titlebar | sf::Style::Close | sf::Style::Resize;
 
-		sf::RenderWindow* m_window;
+		std::unique_ptr<sf::RenderWindow> m_window;
 		sf::VideoMode m_videoMode;
 		sf::View m_view;
 
+		// Scenes
+
+		SceneManager m_sceneManager;
+
 		// Game
 
-		Board* m_board; // Where tiles will be played to
-		Board* m_hand;  // Where tiles will be played from
-
 		std::vector<std::unique_ptr<Tile>> m_deck;
-
-		std::unique_ptr<Tile> m_currentTile = nullptr; // Only allow one tile to be moved at a time
-		Slot* m_lastSlot = nullptr;                    // Default to a slot once a move is cancelled
-
 		bool m_gameStarted = false;
 
 		// Private functions
 
-		void initVariables();
 		void initWindow();
 
-		sf::Vector2f getGameWorldSize() const;
-		sf::Vector2f getGameWorldCentre() const;
+		sf::Vector2f getGameWorldSize();
+		sf::Vector2f getGameWorldCentre();
 		sf::Vector2f getMousePosView() const { return m_window->mapPixelToCoords(sf::Mouse::getPosition(*m_window)); }
 
 		void createDeck();
-		void drawToHand();
-		bool canSwap(Slot& from, Slot& to);
 
-		void handleDragAndDrop(const sf::Vector2f& mousePosView, const std::optional<sf::Event> event);
-		void pollEvents();
-
-		void startGame();
-
+		void pollEvents(const sf::Vector2f& mousePosView);
 		void resizeView(int windowWidth, int windowHeight);
+		void checkScenes();
 	public:
 		Game();
-		virtual ~Game();
+		~Game() = default;
 
 		// Getters
 
 		bool isRunning() const;
+		std::vector<std::unique_ptr<Tile>>& getDeck() { return m_deck; }
 
 		// Public functions
 		
+		void startGame();
 		void closeWindow();
 
 		void update();
