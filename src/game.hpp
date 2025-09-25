@@ -4,12 +4,10 @@
 #include <vector>
 
 #include <SFML/Graphics.hpp>
-#include <SFML/System.hpp>
-#include <SFML/Window.hpp>
-#include <SFML/Audio.hpp>
 
 #include "board.hpp"
 #include "scenes/scene_manager.hpp"
+#include "network/network_manager.hpp"
 
 namespace Rummage 
 {
@@ -32,6 +30,10 @@ namespace Rummage
 		// Scenes
 
 		SceneManager m_sceneManager;
+
+		// Network
+
+		NetworkManager m_networkManager;
 
 		// Game
 
