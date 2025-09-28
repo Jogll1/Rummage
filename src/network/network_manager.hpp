@@ -1,7 +1,7 @@
 #pragma once
 
 #include <thread>
-#include <functional>
+#include <atomic>
 #include <mutex>
 
 #include <SFML/Network.hpp>
@@ -14,21 +14,46 @@ namespace Rummage
 	class NetworkManager
 	{
 	private:
-		inline bool isValidMessage(const json& data, bool checkPayload);
+		// Network
 
+		sf::IpAddress m_hostAddress = sf::IpAddress::LocalHost;
+		float m_maxResponseWait = 5.f;
+
+		sf::TcpSocket m_socket;
+		std::thread m_receiveThread;
+		std::atomic<bool> m_receiving{ false };
+
+		std::mutex m_sendMutex;
+
+		// Game
+
+		std::string m_currentRoom = ""; // Current room code
+
+		// Private functions
+
+		inline bool isValidMessage(const json& data, bool checkPayload);
 		bool sendMessageUDP(sf::UdpSocket& socket, sf::IpAddress ip, unsigned short port, const json& data);
-		bool sendMessageTCP(sf::TcpSocket& socket, sf::IpAddress ip, unsigned short port, const json& data);
+		bool sendMessageTCP(sf::TcpSocket& socket, const json& data);
+
 		sf::IpAddress findLocalHost();
 		bool connectToServer(const sf::IpAddress ip, unsigned short port);
 
-		float m_maxResponseWait = 5.f;
+		void startReceiving();
+		void stopReceiving();
+		void receiveLoop();
+
+		void receiveMessage(const std::string raw);
 	public:
 		NetworkManager();
+		~NetworkManager();
 
-		sf::TcpSocket socket;
-		std::thread recieveThread;
-		std::function<void(const json&)> onMessageReceived;
+		// Getters
 
-		std::mutex sendMutex;
+		std::string getCurrentRoom() { return m_currentRoom; }
+
+		// Public functions
+
+		bool hostGame();
+		bool joinGame(std::string code);
 	};
 }

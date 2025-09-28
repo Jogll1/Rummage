@@ -206,4 +206,26 @@ namespace Rummage
 
 		m_window->display();
 	}
+
+#pragma region Network Access
+	void Game::hostGame()
+	{
+		bool connected = m_networkManager.hostGame();
+
+		if (connected)
+		{
+			startGame();
+		}
+	}
+
+	void Game::joinGame(std::string code)
+	{
+		bool connected = m_networkManager.joinGame(code);
+
+		if (connected)
+		{
+			startGame();
+		}
+	}
+#pragma endregion
 }

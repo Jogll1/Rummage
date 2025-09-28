@@ -2,11 +2,11 @@
 
 #include <iostream>
 
-#ifdef _WIN32
-#include <winsock2.h>
-#else
-#include <arpa/inet.h>
-#endif
+//#ifdef _WIN32
+//#include <winsock2.h>
+//#else
+//#include <arpa/inet.h>
+//#endif
 
 #include <SFML/Network.hpp>
 #include <nlohmann/json.hpp>
@@ -16,13 +16,13 @@ namespace Rummage
 	inline bool NetworkManager::isValidMessage(const json& data, bool checkPayload)
 	{
 		// Validate JSON according to message protocol
-
 		return data.contains("type") && data.contains("action") && (!checkPayload || data.contains("payload"));
 	}
 
 	bool NetworkManager::sendMessageUDP(sf::UdpSocket& socket, sf::IpAddress ip, unsigned short port, const json& data)
 	{
-		// Must follow protocol defined in protocol.md
+		// Message must follow protocol defined in protocol.md
+		if (!isValidMessage(data, false)) return false;
 
 		// Serialise JSON
 		std::string jsonString = data.dump();
@@ -33,15 +33,18 @@ namespace Rummage
 		return true;
 	}
 
-	bool NetworkManager::sendMessageTCP(sf::TcpSocket& socket, sf::IpAddress ip, unsigned short port, const json& data)
+	bool NetworkManager::sendMessageTCP(sf::TcpSocket& socket, const json& data)
 	{
-		// Must follow protocol defined in protocol.md
+		// Message must follow protocol defined in protocol.md
+		if (!isValidMessage(data, false)) return false;
 
 		// Serialise JSON
 		std::string jsonString = data.dump();
-		uint32_t length = htonl(jsonString.size());
 
-		return false;
+		// Send
+		if (socket.send(jsonString.c_str(), jsonString.size()) != sf::Socket::Status::Done) return false;
+
+		return true;
 	}
 
 	sf::IpAddress NetworkManager::findLocalHost()
@@ -75,7 +78,8 @@ namespace Rummage
 
 		std::cout << "[UDP] Waiting for broadcast response.\n";
 
-		// Get responses
+		// Wait for response from server
+
 		sf::Clock clock;
 		const sf::Time timeout = sf::seconds(m_maxResponseWait);
 
@@ -128,7 +132,7 @@ namespace Rummage
 
 	bool NetworkManager::connectToServer(const sf::IpAddress ip, unsigned short port)
 	{
-		sf::Socket::Status status = socket.connect(ip, port);
+		sf::Socket::Status status = m_socket.connect(ip, port);
 
 		if (status != sf::Socket::Status::Done)
 		{
@@ -140,11 +144,154 @@ namespace Rummage
 		return true;
 	}
 
-	// Constructor
-
-	NetworkManager::NetworkManager()
+	void NetworkManager::startReceiving()
 	{
-		sf::IpAddress serverIp = findLocalHost();
-		connectToServer(serverIp, 54000);
+		m_receiving = true;
+		m_receiveThread = std::thread(&NetworkManager::receiveLoop, this);
+	}
+
+	void NetworkManager::stopReceiving()
+	{
+		m_receiving = false;
+		if (m_receiveThread.joinable())
+		{
+			m_receiveThread.join();
+		}
+		m_socket.disconnect();
+	}
+
+	void NetworkManager::receiveLoop()
+	{
+		while (m_receiving)
+		{
+			std::array<char, 1024> responseData = { 0 };
+			std::size_t received;
+			sf::Socket::Status status = m_socket.receive(responseData.data(), responseData.size(), received);
+
+			switch (status)
+			{
+			case sf::Socket::Status::Done: 
+			{
+				// Sucessfully received packet
+				std::cout << "[SERVER] " << responseData.data() << "\n";
+				receiveMessage(std::string(responseData.data(), received));
+				break;
+			}
+			case sf::Socket::Status::Disconnected: 
+			{
+				std::cout << "[DISCONNECTED] Server disconnected.\n";
+				m_receiving = false;
+				break;
+			}
+			case sf::Socket::Status::Error:
+			{
+				std::cerr << "[ERROR] Socket error.\n";
+				m_receiving = false;
+				break;
+			}
+			default: sf::sleep(sf::milliseconds(10)); break;
+			}
+		}
+	}
+
+	void NetworkManager::receiveMessage(const std::string raw)
+	{
+		try
+		{
+			json message = json::parse(raw);
+
+			// Handle messages received from the server
+			if (!isValidMessage(message, true)) return;
+
+			// Responses
+			if (message["type"] == "response")
+			{
+				if (message["action"] == "create_room")
+				{
+					// Store room code
+					m_currentRoom = message["payload"]["room_code"];
+				}
+				else if  (message["action"] == "join_room")
+				{
+					// Store room code
+					bool connected = message["payload"]["connected"];
+
+					if (connected) 
+					{
+						//m_currentRoom = 
+					}
+				}
+			}
+		}
+		catch (const std::exception& e)
+		{
+			std::cerr << "[ERROR] Failed to parse discovery response: " << e.what() << "\n";
+		}
+	}
+
+	// Constructor and Deconstructor
+
+	NetworkManager::NetworkManager() {}
+
+	NetworkManager::~NetworkManager()
+	{
+		stopReceiving();
+	}
+
+	// Public functions
+
+	bool NetworkManager::hostGame()
+	{
+		// Connect to server
+		m_hostAddress = findLocalHost();
+		bool connected = connectToServer(m_hostAddress, 54000);
+
+		if (!connected) return false;
+
+		// Request new game to be created
+
+		const json sendData = {
+			{"type", "request"},
+			{"action", "create_room"}
+		};
+
+		if (!sendMessageTCP(m_socket, sendData))
+		{
+			// ERROR!
+			std::cerr << "[ERROR] Failed to send room creation request. \n";
+			return false;
+		}
+
+		startReceiving();
+
+		return connected;
+	}
+
+	bool NetworkManager::joinGame(std::string code)
+	{
+		// Connect to server
+		m_hostAddress = findLocalHost();
+		bool connected = connectToServer(m_hostAddress, 54000);
+
+		if (!connected) return false;
+
+		// Request to join game
+
+		const json sendData = {
+			{"type", "request"},
+			{"action", "join_room"},
+			{"payload", code }
+		};
+
+		if (!sendMessageTCP(m_socket, sendData))
+		{
+			// ERROR!
+			std::cerr << "[ERROR] Failed to send room join request. \n";
+			return false;
+		}
+
+		startReceiving();
+
+		return connected;
 	}
 }

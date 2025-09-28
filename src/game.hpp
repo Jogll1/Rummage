@@ -61,6 +61,7 @@ namespace Rummage
 
 		bool isRunning() const;
 		std::vector<std::unique_ptr<Tile>>& getDeck() { return m_deck; }
+		NetworkManager* getNetworkManager() { return &m_networkManager; }
 
 		// Public functions
 		
@@ -69,5 +70,10 @@ namespace Rummage
 
 		void update();
 		void render();
+
+		// Network functions
+
+		void hostGame();
+		void joinGame(std::string code);
 	};
 }

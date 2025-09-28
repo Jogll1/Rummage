@@ -26,6 +26,9 @@ namespace Rummage
 
 		// Public functions
 
+		void hostGame();
+		void joinGame();
+
 		void handleEvents(const sf::Vector2f& mousePosView, const std::optional<sf::Event> event) override;
 		void update(const sf::Vector2f& mousePosView) override;
 		void draw(sf::RenderTarget& target, sf::RenderStates states) const override;

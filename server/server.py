@@ -7,7 +7,7 @@ import threading
 import json
 
 BUFFER = 1024
-MAX_PLAYERS = 2 # This is a two-player game
+MAX_PLAYERS = 2        # This is a two-player game
 
 TCP_PORT       = 54000 # Port for game
 DISCOVERY_PORT = 54001 # Port for host discovery
@@ -17,10 +17,11 @@ class Room:
 		self.host         = host_connection
 		self.address      = host_address
 		self.clients      = [host_connection]
-		self.code         = code or self._generate_code()
+		self.code         = code or self.generate_code()
 		self.game_started = False
 
-	def _generate_code(self, length=5) -> str:
+	@staticmethod
+	def generate_code(length=5) -> str:
 		return ''.join(random.choices(string.ascii_uppercase + string.digits, k=length))
 	
 	def is_full(self) -> bool:
@@ -52,6 +53,10 @@ class Server:
 	def check_json_key(self, json, key: str, value):
 		return key in json and json[key] == value
 	
+	def is_valid_message(self, message_json, check_payload):
+		# Check if a message follows the protocol in protocol.md
+		return 'type' in message_json and 'action' in message_json and (not check_payload or 'payload' in message_json)
+
 	def handle_udp_discovery(self):
 		with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as udp_socket:
 			udp_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -83,24 +88,71 @@ class Server:
 				except Exception as e:
 					print(f"[UDP] Error: {e}", flush=True)
 
+	def receive_client_message(self, message_json, from_connection, from_address):
+		if not self.is_valid_message(message_json, False):
+			return
+		
+		if self.check_json_key(message_json, 'type', 'response'):
+			# create_room
+			if self.check_json_key(message_json, 'action', 'create_room'):
+				room = Room(from_connection, from_address)
+
+				while room.code in self.rooms:
+					room.code = Room.generate_code()
+
+				self.rooms[room.code] = room
+
+				print(f"[ROOM] New room created with code {room.code}.", flush=True)
+
+				# Response
+				response = json.dumps({
+					"type" : "response",
+					"action" : "create_room",
+					"payload" : { "room_code" : room.code }
+				})
+				from_connection.send(response.encode(self.format))
+				return
+			
+			# join_room
+			if self.check_json_key(message_json, 'action', 'join_room') and 'payload' in message_json:
+				connected = False
+				if 'room_code' in message_json['payload']:
+					code = message_json['payload']['room_code']
+
+					if code in self.rooms and not self.rooms[code].is_full():
+						self.rooms[code].clients.add(from_connection)
+						print(f"[ROOM] {from_address} joined room {code}.", flush=True)
+						connected = True
+
+				# Response
+				response = json.dumps({
+					"type" : "response",
+					"action" : "join_room",
+					"payload" : { "connected" : connected }
+				})
+				from_connection.send(response.encode(self.format))
+				return
+
 	def handle_connection(self, connection: socket.socket, address):
 		print(f"[CONNECTION] {address} connected.", flush=True)
 		current_room = None
 
 		try:
 			while True:
-				data = connection.recv(BUFFER)
-				if not data:
+				# Recieve a message from the player
+				message = connection.recv(BUFFER)
+				if not message:
 					break
 
 				# Decode message
 				try:
-					msg = json.loads(data.decode(self.format))
+					message = json.loads(message.decode(self.format))
 				except json.JSONDecodeError:
 					continue
 
-				# Recieve a message from the player
-				print(f"[FROM {address}]  {msg}.", flush=True)
+				print(f"[FROM {address}]  {message}.", flush=True)
+
+				self.receive_client_message(message, connection, address)
 		except ConnectionResetError:
 			print(f"[DISCONNECTION] {address} disconnected abruptly", flush=True)
 		finally:

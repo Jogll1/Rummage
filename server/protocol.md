@@ -29,4 +29,34 @@ Requests the IP address of an active server on the local network.
 This is requested by `findLocalHost()` on the client and served by
 `handle_udp_discovery()` on the server.
 
+### create_room
+Request payload: n/a
+
+Response payload:
+```json
+{
+    "room_code" : "XXXXX"
+}
+```
+
+Asks the server to create a new room.
+
+### join_room
+Request payload: 
+```json
+{
+    "room_code" : "XXXXX"
+}
+```
+
+Response payload:
+```json
+{
+    "connected" : true or false
+}
+```
+
+Asks the server to create a room given a room code.
+As long as the room isn't full, the client can join a room with a valid code.
+
 ### Example

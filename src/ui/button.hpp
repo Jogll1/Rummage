@@ -31,6 +31,7 @@ namespace Rummage
 		Button(const std::string& text, sf::IntRect normalRect, sf::IntRect clickedRect, sf::Vector2f pos = { 0, 0 });
 
 		bool isActive = true;
+		bool disableOnClick = false;
 
 		// Setters
 

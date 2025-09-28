@@ -89,6 +89,8 @@ namespace Rummage
 
 						// Callable
 						m_onClick();
+
+						if (disableOnClick) isActive = false;
 					}
 				}
 			}
@@ -99,6 +101,17 @@ namespace Rummage
 	{
 		if (visible)
 		{
+			// Set inactive buttons to be a bit darker
+			if (!isActive)
+			{
+				m_currentSprite->setColor(sf::Color(211, 211, 211));
+			}
+			else
+			{
+				m_currentSprite->setColor(sf::Color::White);
+			}
+
+			// Draw whether it has an outline or not
 			if (m_drawOutline && m_outlineShader)
 			{
 				states.shader = m_outlineShader.get();

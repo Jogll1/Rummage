@@ -34,7 +34,7 @@ namespace Rummage
 
 		// Getters
 
-		sf::String getValue() const { return m_value; }
+		std::string getValue() const { return m_value.toAnsiString(); }
 
 		// Setters 
 
