@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <iostream>
 
 #include <SFML/Graphics.hpp>
 
@@ -20,7 +21,7 @@ namespace Rummage
 
 		sf::Sprite m_sprite = sf::Sprite(*ResourceManager::getTexture(ResourceManager::kAtlasPath));
 
-		sf::String m_value = "";
+		sf::String m_value;
 		sf::Text m_text = sf::Text(*ResourceManager::getFont(RESOURCES_PATH "8bit-ascii.ttf"));
 
 		/*sf::Clock m_caretClock;
@@ -34,7 +35,8 @@ namespace Rummage
 
 		// Getters
 
-		std::string getValue() const { return m_value.toAnsiString(); }
+		sf::String getValue() const { return m_value; }
+		std::string getAnsiValue() const { return m_value.toAnsiString(); }
 
 		// Setters 
 
@@ -43,7 +45,6 @@ namespace Rummage
 		// Public functions
 
 		bool isMouseOver(const sf::Vector2f& mousePosView) const;
-
 		virtual void handleEvents(const sf::Vector2f& mousePos, const std::optional<sf::Event> event) override;
 		virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 	};

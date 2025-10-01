@@ -22,6 +22,9 @@ namespace Rummage
 		// Setters
 
 		void setOutline(bool value) { m_drawOutline = value; }
+
+		// Public functions
+
 		virtual void handleEvents(const sf::Vector2f& mousePos, const std::optional<sf::Event> event) override {}
 		virtual void setPos(const sf::Vector2f& newPos) override;
 	};

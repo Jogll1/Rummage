@@ -1,7 +1,7 @@
 ## Message Protocol
 
-<!-- All messages must be length-prefixed. This means the message length shall be prepended to the message.
-The header packet (containing the length) must be a 4 byte uint32_t or equivalent (big endian). -->
+All messages must be length-prefixed. This means the message length shall be prepended to the message.
+The header packet (containing the length) must be a 4 byte uint32_t or equivalent (big endian).
 
 ### Structure
 
@@ -52,7 +52,7 @@ Request payload:
 Response payload:
 ```json
 {
-    "connected" : true or false
+    "status" : "success" or "fail"
 }
 ```
 

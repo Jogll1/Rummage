@@ -15,6 +15,7 @@ namespace Rummage
 	private:
 		void openJoinMenu();
 		void closeJoinMenu();
+		std::string getJoinInput();
 
 		std::unique_ptr<UI> createMenuUI();
 	public:
@@ -25,9 +26,6 @@ namespace Rummage
 		std::vector<WorldObject> itemsToCentre() override;
 
 		// Public functions
-
-		void hostGame();
-		void joinGame();
 
 		void handleEvents(const sf::Vector2f& mousePosView, const std::optional<sf::Event> event) override;
 		void update(const sf::Vector2f& mousePosView) override;

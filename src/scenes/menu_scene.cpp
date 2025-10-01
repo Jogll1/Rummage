@@ -64,8 +64,10 @@ namespace Rummage
 		joinMenu->visible = false;
 
 		std::unique_ptr<InputField> roomInput = std::make_unique<InputField>(sf::IntRect({ 224, 3 }, { 36, 16 }));
+		roomInput->tag = "code_input";
 		std::unique_ptr<Button> playButton = std::make_unique<Button>("PLAY", sf::IntRect({ 136, 3 }, { 36, 16 }), sf::IntRect({ 180, 3 }, { 36, 16 }));
-		playButton->setCallback([this, &roomInput]() { this->m_game.joinGame(roomInput->getValue()); });
+		InputField* roomInputPtr = roomInput.get();
+		playButton->setCallback([this, roomInputPtr]() { this->m_game.joinGame(roomInputPtr->getAnsiValue()); });
 		std::unique_ptr<Button> backButton = std::make_unique<Button>("BACK", sf::IntRect({ 136, 3 }, { 36, 16 }), sf::IntRect({ 180, 3 }, { 36, 16 }));
 		backButton->setCallback([this]() { this->closeJoinMenu(); });
 

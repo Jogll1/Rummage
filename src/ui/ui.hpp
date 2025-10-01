@@ -22,6 +22,7 @@ namespace Rummage
 		std::string tag = "";
 	
 		virtual void setPos(const sf::Vector2f& newPos) override = 0;
+		virtual UIObject* findWithTag(const std::string tag) { return tag == tag ? this : nullptr; };
 		virtual void handleEvents(const sf::Vector2f& mousePos, const std::optional<sf::Event> event) = 0;
 	};
 
@@ -43,6 +44,8 @@ namespace Rummage
 
 		// Public functions
 
+		virtual UIObject* findWithTag(const std::string tag) override;
+
 		void addElement(std::unique_ptr<UIObject> obj);
 		virtual void handleEvents(const sf::Vector2f& mousePos, const std::optional<sf::Event> event) override;
 		virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
@@ -63,6 +66,19 @@ namespace Rummage
 		// Public functions
 
 		void addElement(std::unique_ptr<UIObject> obj) { m_elements.push_back(std::move(obj)); }
+
+		UIObject* findWithTag(const std::string tag)
+		{
+			for (const auto& elem : m_elements)
+			{
+				if (UIObject* found = elem->findWithTag(tag))
+				{
+					return found;
+				}
+			}
+
+			return nullptr;
+		}
 
 		void handleEvents(const sf::Vector2f& mousePos, const std::optional<sf::Event> event)
 		{

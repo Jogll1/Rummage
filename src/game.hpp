@@ -74,6 +74,6 @@ namespace Rummage
 		// Network functions
 
 		void hostGame();
-		void joinGame(std::string code);
+		void joinGame(const std::string code);
 	};
 }

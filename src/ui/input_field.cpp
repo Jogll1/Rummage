@@ -7,6 +7,7 @@ namespace Rummage
 	{
 		m_sprite.setTextureRect(spriteRect);
 
+		m_value = sf::String();
 		m_size = m_sprite.getGlobalBounds().size;
 
 		m_text.setString(m_value);
@@ -77,7 +78,7 @@ namespace Rummage
 							unicode >= 0x41 && unicode <= 0x5A || // Caps
 							unicode >= 0x61 && unicode <= 0x7A)   // Letters
 						{
-							m_value += unicode;
+							m_value += sf::String(unicode);
 						}
 					}
 

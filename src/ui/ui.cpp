@@ -64,6 +64,19 @@ namespace Rummage
 
 	// Public functions
 
+	UIObject* UIVGroup::findWithTag(const std::string tag)
+	{
+		for (auto& obj : m_objs)
+		{
+			if (UIObject* found = obj->findWithTag(tag))
+			{
+				return found;
+			}
+		}
+
+		return nullptr;
+	}
+
 	void UIVGroup::addElement(std::unique_ptr<UIObject> obj)
 	{
 		m_objs.push_back(std::move(obj));
