@@ -28,8 +28,9 @@ class Room:
 	def is_full(self) -> bool:
 		return len(self.clients) >= MAX_PLAYERS
 	
-	def broadcast(self, sender, message):
-		...
+	def broadcast(self, server, message: dict):
+		for client in self.clients:
+			server.send_message_tcp(client, message)
 
 class Server:
 	def __init__(self, host=None, port=54000):
@@ -126,6 +127,7 @@ class Server:
 		if not self.is_valid_message(message_json, False):
 			return
 		
+		# Requests
 		if self.check_json_key(message_json, 'type', 'request'):
 			# create_room
 			if self.check_json_key(message_json, 'action', 'create_room'):
@@ -147,7 +149,7 @@ class Server:
 						"room_code" : room.code 
 					}
 				})
-				self.print_rooms()
+
 				return
 			
 			# join_room
@@ -169,14 +171,14 @@ class Server:
 						"status" : "success" if connected else "fail" 
 					}
 				})
-				self.print_rooms()
+
 				return
 
 	def handle_connection(self, connection: socket.socket, address):
 		print(f"[CONNECTION] {address} connected.", flush=True)
-		current_room = None
 
 		try:
+			# Handle messages
 			while True:
 				# Recieve a message from the player
 				message = self.recv_message_tcp(connection)
@@ -196,14 +198,19 @@ class Server:
 		except ConnectionResetError:
 			print(f"[DISCONNECTION] {address} disconnected abruptly", flush=True)
 		finally:
-			if current_room:
-				# Disconnect player
-				if connection in current_room.clients:
-					current_room.clients.remove(connection)
-				# Delete room
-				if not current_room.clients:
-					print(f"[ROOM CLOSED] Room ({current_room.code}) closed", flush=True)
-					del self.rooms[current_room.code]
+			# Remove player from room
+			to_delete = []
+			for key, room in self.rooms.items():
+				if connection in room.clients:
+					room.clients.remove(connection)
+					
+				# Delete room if it is empty
+				if not room.clients:
+					to_delete.append(key)
+
+			# Delete rooms after loop
+			for key in to_delete:
+				del self.rooms[key]
 
 			connection.close()
 

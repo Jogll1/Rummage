@@ -7,7 +7,7 @@
 
 namespace Rummage
 {
-	class UIImage : public UIObject
+	class Image : public UIObject
 	{
 	private:
 		std::shared_ptr<sf::Shader> m_outlineShader = ResourceManager::getShader(SHADERS_PATH "outline.shader", sf::Shader::Type::Fragment);
@@ -17,7 +17,7 @@ namespace Rummage
 	protected:
 		virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 	public:
-		UIImage(sf::IntRect spriteRect, sf::Vector2f pos = { 0, 0 }, Padding padding = { 0, 0, 0, 0 });
+		Image(sf::IntRect spriteRect, sf::Vector2f pos = { 0, 0 }, Padding padding = { 0, 0, 0, 0 });
 
 		// Setters
 
@@ -25,7 +25,7 @@ namespace Rummage
 
 		// Public functions
 
-		virtual void handleEvents(const sf::Vector2f& mousePos, const std::optional<sf::Event> event) override {}
 		virtual void setPos(const sf::Vector2f& newPos) override;
+		virtual void handleEvents(const sf::Vector2f& mousePos, const std::optional<sf::Event> event) override {}
 	};
 }

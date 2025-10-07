@@ -15,7 +15,6 @@ namespace Rummage
 	private:
 		void openJoinMenu();
 		void closeJoinMenu();
-		std::string getJoinInput();
 
 		std::unique_ptr<UI> createMenuUI();
 	public:

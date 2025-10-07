@@ -8,7 +8,7 @@ namespace Rummage
 		m_sprite.setTextureRect(spriteRect);
 
 		m_value = sf::String();
-		m_size = m_sprite.getGlobalBounds().size;
+		m_size = m_sprite.getGlobalBounds().size + sf::Vector2f(m_padding.l + m_padding.r, m_padding.t + m_padding.b);
 
 		m_text.setString(m_value);
 		m_text.setFillColor({ 40, 39, 39 });

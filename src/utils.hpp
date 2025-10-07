@@ -20,4 +20,12 @@ namespace Rummage
 	{
 		return sf::Vector2f(std::floor(vector.x), std::floor(vector.y));
 	}
+
+	/*void drawBounds(sf::RenderTarget& target, sf::Vector2f size, sf::Vector2f pos)
+	{
+		sf::RectangleShape shape(size);
+		shape.setFillColor(sf::Color::White);
+		shape.setPosition(pos);
+		target.draw(shape);
+	}*/
 }

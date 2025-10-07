@@ -10,6 +10,10 @@
 
 namespace Rummage
 {
+	// Should probably make a set size override
+	// Size includes padding?
+	// Position is the top left including padding (for most of them).
+
 	class UIObject : public WorldObject, public sf::Drawable
 	{
 	protected:
@@ -24,31 +28,6 @@ namespace Rummage
 		virtual void setPos(const sf::Vector2f& newPos) override = 0;
 		virtual UIObject* findWithTag(const std::string tag) { return tag == tag ? this : nullptr; };
 		virtual void handleEvents(const sf::Vector2f& mousePos, const std::optional<sf::Event> event) = 0;
-	};
-
-	class UIVGroup : public UIObject
-	{
-	private:
-		std::vector<std::unique_ptr<UIObject>> m_objs;
-
-		float m_vGap = 0.f;
-	public:
-		UIVGroup(float gap, sf::Vector2f pos = { 0, 0 }, Padding padding = { 0, 0, 0, 0 });
-		~UIVGroup() = default;
-
-		// Setters
-
-		virtual void setPos(const sf::Vector2f& newPos) override;
-		void setSize();
-		void setVGap(float newGap) { m_vGap = newGap; }
-
-		// Public functions
-
-		virtual UIObject* findWithTag(const std::string tag) override;
-
-		void addElement(std::unique_ptr<UIObject> obj);
-		virtual void handleEvents(const sf::Vector2f& mousePos, const std::optional<sf::Event> event) override;
-		virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 	};
 
 	class UI : public sf::Drawable

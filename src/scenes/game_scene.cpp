@@ -9,6 +9,8 @@
 #include "../ui/button.hpp"
 #include "../ui/input_field.hpp"
 #include "../ui/image.hpp"
+#include "../ui/group.hpp"
+#include "../ui/text.hpp"
 
 #include "../utils.hpp"
 
@@ -19,6 +21,24 @@ namespace Rummage
 	std::unique_ptr<UI> GameScene::createGameUI()
 	{
 		std::unique_ptr<UI> ui = std::make_unique<UI>();
+
+		// === Game Info ===
+
+		std::unique_ptr<UIHGroup> infoBar = std::make_unique<UIHGroup>(8.f, sf::Vector2f(0, 0));
+
+		std::unique_ptr<Text> playerText1 = std::make_unique<Text>("JOEL");
+		std::unique_ptr<Text> vsText = std::make_unique<Text>("VS");
+		std::unique_ptr<Text> playerText2 = std::make_unique<Text>("JOEL");
+
+		infoBar->addElement(std::move(playerText1));
+		infoBar->addElement(std::move(vsText));
+		infoBar->addElement(std::move(playerText2));
+		infoBar->setPos({
+			m_board->getPos().x + m_board->getSize().x / 2 - infoBar->getSize().x / 2,
+			m_board->getPos().y + 0.5f * (m_board->getPadding().t - infoBar->getSize().y)
+		});
+		
+		// === Actions ===
 
 		std::unique_ptr<UIVGroup> actionMenu = std::make_unique<UIVGroup>(2.f, sf::Vector2f(0, 0));
 
@@ -31,9 +51,12 @@ namespace Rummage
 		actionMenu->addElement(std::move(clearButton));
 		actionMenu->setPos(m_hand->getPos() + sf::Vector2f(
 			std::floor(m_hand->getSize().x - m_hand->getPadding().r + (m_hand->getPadding().r - actionMenu->getSize().x) / 2.f),
-			std::floor((m_hand->getSize().y - actionMenu->getSize().y) / 2.f))
+			std::floor(m_hand->getPadding().t + 0.5 * (m_hand->getSize().y - m_hand->getPadding().t - m_hand->getPadding().b - actionMenu->getSize().y)))
 		);
 
+		// ======
+
+		ui->addElement(std::move(infoBar));
 		ui->addElement(std::move(actionMenu));
 
 		return std::move(ui);
@@ -365,8 +388,8 @@ namespace Rummage
 	GameScene::GameScene(Game& game) : Scene(game)
 	{
 		// Create and position new board and hand
-		m_board = std::make_shared<Board>(11u, 11u);
-		m_hand = std::make_shared<Board>(11u, 2u);
+		m_board = std::make_shared<Board>(11u, 11u, 2, sf::Vector2f(0, 0), Padding(48, 48, 16, 8));
+		m_hand = std::make_shared<Board>(11u, 2u, 2, sf::Vector2f(0, 0), Padding(48, 48, 8, 16));
 
 		//m_board->setPos({ kInitWindowWidth / 2 - m_board->getSize().x / 2, kInitWindowHeight / 2 - m_board->getSize().y / 2 });
 		m_hand->setPos({ 0, m_board->getSize().y });

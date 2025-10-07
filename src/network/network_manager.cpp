@@ -247,6 +247,8 @@ namespace Rummage
 
 	void NetworkManager::receiveMessage(const std::string raw)
 	{
+		// TODO: Set up receive loop for game messages
+
 		try
 		{
 			json message = json::parse(raw);
@@ -274,7 +276,7 @@ namespace Rummage
 
 	// Constructor and Deconstructor
 
-	NetworkManager::NetworkManager() {}
+	NetworkManager::NetworkManager(Game* game) : m_game(game) {}
 
 	NetworkManager::~NetworkManager()
 	{
@@ -363,7 +365,6 @@ namespace Rummage
 		}
 
 		// Request to join game
-
 		const json sendData = {
 			{"type", "request"},
 			{"action", "join_room"},

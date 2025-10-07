@@ -9,6 +9,7 @@
 #include "../ui/button.hpp"
 #include "../ui/input_field.hpp"
 #include "../ui/image.hpp"
+#include "../ui/group.hpp"
 
 namespace Rummage
 {
@@ -34,7 +35,7 @@ namespace Rummage
 	{
 		std::unique_ptr<UI> ui = std::make_unique<UI>();
 
-		std::unique_ptr<UIImage> logo = std::make_unique<UIImage>(sf::IntRect({ 286, 22 }, { 74, 74 }), sf::Vector2f(0, 0), Padding(10, 10, 10, 4));
+		std::unique_ptr<Image> logo = std::make_unique<Image>(sf::IntRect({ 286, 22 }, { 74, 74 }), sf::Vector2f(0, 0), Padding(10, 10, 10, 4));
 		sf::Vector2f logoSize = logo->getSize();
 
 		// === Main ===
@@ -76,7 +77,7 @@ namespace Rummage
 		joinMenu->addElement(std::move(backButton));
 		joinMenu->setPos({ logoSize.x / 2.f - joinMenu->getSize().x / 2.f, logoSize.y });
 
-		// === Adding ===
+		// ======
 
 		ui->addElement(std::move(logo));
 		ui->addElement(std::move(mainMenu));

@@ -3,14 +3,13 @@
 
 namespace Rummage
 {
-	Button::Button(const std::string& text, sf::IntRect normalRect, sf::IntRect clickedRect, sf::Vector2f pos)
-		: UIObject(pos)
+	Button::Button(const std::string& text, sf::IntRect normalRect, sf::IntRect clickedRect, sf::Vector2f pos) : UIObject(pos)
 	{
 		m_spriteNormal.setTextureRect(normalRect);
 		m_spriteClicked.setTextureRect(clickedRect);
 		m_currentSprite = &m_spriteNormal;
 
-		m_size = m_spriteNormal.getGlobalBounds().size;
+		m_size = m_spriteNormal.getGlobalBounds().size + sf::Vector2f(m_padding.l + m_padding.r, m_padding.t + m_padding.b);
 
 		m_text.setString(text);
 		m_text.setFillColor({ 40, 39, 39 });

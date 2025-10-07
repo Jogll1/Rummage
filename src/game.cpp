@@ -136,7 +136,7 @@ namespace Rummage
 
 	// Constructor and Destructor
 
-	Game::Game()
+	Game::Game() : m_networkManager(this)
 	{ 
 		srand(time(NULL));
 

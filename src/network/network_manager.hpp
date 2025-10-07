@@ -17,6 +17,8 @@ using json = nlohmann::json;
 
 namespace Rummage
 {
+	class Game;
+
 	class NetworkManager
 	{
 	private:
@@ -35,6 +37,7 @@ namespace Rummage
 
 		// Game
 
+		Game* m_game;
 		std::string m_currentRoom = ""; // Current room code
 
 		// Private functions
@@ -53,8 +56,8 @@ namespace Rummage
 
 		void receiveMessage(const std::string raw);
 	public:
-		NetworkManager();
-		~NetworkManager();
+		NetworkManager(Game* game);
+		~NetworkManager() = default;
 
 		// Getters
 
