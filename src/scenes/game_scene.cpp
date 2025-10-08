@@ -24,18 +24,18 @@ namespace Rummage
 
 		// === Game Info ===
 
-		std::unique_ptr<UIHGroup> infoBar = std::make_unique<UIHGroup>(8.f, sf::Vector2f(0, 0));
+		std::string codeStr = m_game.getGameCode();
+		std::unique_ptr<Text> roomCodeText = std::make_unique<Text>("Code: " + codeStr);
+		roomCodeText->setPos({ 
+			m_board->getPos().x + m_board->getPadding().l,
+			m_board->getPos().y + 0.5f * (m_board->getPadding().t - roomCodeText->getSize().y) 
+		});
 
-		std::unique_ptr<Text> playerText1 = std::make_unique<Text>("JOEL");
-		std::unique_ptr<Text> vsText = std::make_unique<Text>("VS");
-		std::unique_ptr<Text> playerText2 = std::make_unique<Text>("JOEL");
-
-		infoBar->addElement(std::move(playerText1));
-		infoBar->addElement(std::move(vsText));
-		infoBar->addElement(std::move(playerText2));
-		infoBar->setPos({
-			m_board->getPos().x + m_board->getSize().x / 2 - infoBar->getSize().x / 2,
-			m_board->getPos().y + 0.5f * (m_board->getPadding().t - infoBar->getSize().y)
+		std::unique_ptr<Text> turnText = std::make_unique<Text>("Your turn!");
+		turnText->setAlign(UI::Align::RIGHT);
+		turnText->setPos({
+			m_board->getPos().x + m_board->getSize().x - m_board->getPadding().l,
+			m_board->getPos().y + 0.5f * (m_board->getPadding().t - turnText->getSize().y)
 		});
 		
 		// === Actions ===
@@ -56,7 +56,8 @@ namespace Rummage
 
 		// ======
 
-		ui->addElement(std::move(infoBar));
+		ui->addElement(std::move(roomCodeText));
+		ui->addElement(std::move(turnText));
 		ui->addElement(std::move(actionMenu));
 
 		return std::move(ui);

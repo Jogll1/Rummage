@@ -57,7 +57,7 @@ namespace Rummage
 		void receiveMessage(const std::string raw);
 	public:
 		NetworkManager(Game* game);
-		~NetworkManager() = default;
+		~NetworkManager();
 
 		// Getters
 

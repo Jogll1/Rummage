@@ -65,15 +65,19 @@ namespace Rummage
 
 		// Public functions
 		
-		void startGame();
 		void closeWindow();
 
 		void update();
 		void render();
 
+		// Game
+
+		void startGame();
+
 		// Network functions
 
 		void hostGame();
 		void joinGame(const std::string code);
+		std::string getGameCode();
 	};
 }

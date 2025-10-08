@@ -23,7 +23,7 @@ class Room:
 
 	@staticmethod
 	def generate_code(length=5) -> str:
-		return ''.join(random.choices(string.ascii_uppercase + string.digits, k=length))
+		return ''.join(random.choices(string.ascii_uppercase, k=length))
 	
 	def is_full(self) -> bool:
 		return len(self.clients) >= MAX_PLAYERS
@@ -138,7 +138,7 @@ class Server:
 
 				self.rooms[room.code] = room
 
-				print(f"[ROOM] New room created with code {room.code}.", flush=True)
+				print(f"[ROOM {room.code}] Room created.", flush=True)
 
 				# Respond
 				self.send_message_tcp(from_connection, {
@@ -160,7 +160,7 @@ class Server:
 
 					if code in self.rooms and not self.rooms[code].is_full():
 						self.rooms[code].clients.append(from_connection)
-						print(f"[ROOM] {from_address} joined room {code}.", flush=True)
+						print(f"[ROOM {code}] {from_address} joined room.", flush=True)
 						connected = True
 
 				# Response
@@ -171,6 +171,23 @@ class Server:
 						"status" : "success" if connected else "fail" 
 					}
 				})
+
+				return
+			
+			# start_game
+			if self.check_json_key(message_json, 'action', 'start_game') and 'payload' in message_json:
+				if 'room_code' in message_json['payload']:
+					code = message_json['payload']['room_code'].upper()
+
+					if code in self.rooms and self.rooms[code].is_full():
+						room: Room = self.rooms[code]
+						print(f"[ROOM {code}] Game started.", flush=True)
+						room.game_started = True
+						room.broadcast(self, {
+							"type" : "notification",
+							"action" : "game_started",
+							"payload" : {}
+						})
 
 				return
 
@@ -210,6 +227,7 @@ class Server:
 
 			# Delete rooms after loop
 			for key in to_delete:
+				print(f"[ROOM {key}] Room closed.")
 				del self.rooms[key]
 
 			connection.close()

@@ -35,6 +35,13 @@ namespace Rummage
 	private:
 		std::vector<std::unique_ptr<UIObject>> m_elements;
 	public:
+		enum class Align
+		{
+			LEFT,
+			CENTER,
+			RIGHT
+		};
+
 		UI() = default;
 		~UI() = default;
 

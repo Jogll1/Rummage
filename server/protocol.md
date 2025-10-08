@@ -62,10 +62,23 @@ Response payload:
 Asks the server to create a room given a room code.
 As long as the room isn't full, the client can join a room with a valid code.
 
+#### start_game
+Request payload:
+```json
+{
+    "room_code" : "XXXXX"
+}
+```
+
+Response payload: n/a
+
+Requests the server to start the game with the given code. 
+This is sent by the joining player as once a player joins a room thats already hosted, it should start.
+
 ### Notifications
 Notifications are messages send to the client from the server, with no prior request.
 
-#### game_start 
+#### game_started 
 Payload: n/a
 
 Used to tell all clients in a room the game has started.

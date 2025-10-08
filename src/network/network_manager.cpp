@@ -13,6 +13,8 @@
 #include <SFML/Network.hpp>
 #include <nlohmann/json.hpp>
 
+#include "../game.hpp";
+
 namespace Rummage
 {
 	inline bool NetworkManager::isValidMessage(const json& data, bool checkPayload)
@@ -247,8 +249,6 @@ namespace Rummage
 
 	void NetworkManager::receiveMessage(const std::string raw)
 	{
-		// TODO: Set up receive loop for game messages
-
 		try
 		{
 			json message = json::parse(raw);
@@ -266,6 +266,13 @@ namespace Rummage
 			{
 				it->second.set_value(message);
 				m_pendingResponses.erase(it);
+			}
+
+			// === Game Actions ===
+			if (action == "game_started")
+			{
+				std::cout << "[ROOM] Game started!\n";
+				m_game->startGame();
 			}
 		}
 		catch (const std::exception& e)
@@ -328,8 +335,7 @@ namespace Rummage
 			json response = responseFuture.get();
 
 			// Check if the server created the room
-			if (response["type"] == "response" && response["action"] == "create_room" &&
-				response["payload"]["status"] == "success")
+			if (response["type"] == "response" && response["action"] == "create_room" && response["payload"]["status"] == "success")
 			{
 				m_currentRoom = response["payload"]["room_code"];
 				std::cout << "[ROOM] Room created successfully.\n";
@@ -365,13 +371,13 @@ namespace Rummage
 		}
 
 		// Request to join game
-		const json sendData = {
+		const json joinSendData = {
 			{"type", "request"},
 			{"action", "join_room"},
 			{"payload", {{"room_code", code}} }
 		};
 
-		if (!sendMessageTCP(m_socket, sendData))
+		if (!sendMessageTCP(m_socket, joinSendData))
 		{
 			// ERROR!
 			std::cerr << "[ERROR] Failed to send room join request. \n";
@@ -386,10 +392,23 @@ namespace Rummage
 			json response = responseFuture.get();
 
 			// Check if the server created the room
-			if (response["type"] == "response" && response["action"] == "join_room" &&
-				response["payload"]["status"] == "success")
+			if (response["type"] == "response" && response["action"] == "join_room" && response["payload"]["status"] == "success")
 			{
+				m_currentRoom = code;
 				std::cout << "[ROOM] Joined room " << code << ".\n";
+
+				// Ask the server to start the game
+				const json startSendData = {
+					{"type", "request"},
+					{"action", "start_game"},
+					{"payload", {{"room_code", code}} }
+				};
+
+				if (!sendMessageTCP(m_socket, startSendData))
+				{
+					// ERROR!
+					std::cerr << "[ERROR] Failed to send game start request. \n";
+				}
 
 				return true;
 			}

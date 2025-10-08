@@ -14,8 +14,7 @@ namespace Rummage
 	private:
 		std::string m_cText = "";
 		sf::Text m_text = sf::Text(*ResourceManager::getFont(RESOURCES_PATH "8bit-ascii.ttf"));
-
-		void centreText();
+		UI::Align m_align = UI::Align::LEFT;
 	protected:
 		virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 	public:
@@ -24,6 +23,7 @@ namespace Rummage
 		// Setters
 
 		void setText(const std::string& text);
+		void setAlign(UI::Align align);
 		virtual void setPos(const sf::Vector2f& newPos) override;
 
 		// Public functions

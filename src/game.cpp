@@ -163,16 +163,6 @@ namespace Rummage
 
 	// Public functions
 
-	void Game::startGame()
-	{
-		// Create deck
-		createDeck();
-
-		// Load game scene
-		m_sceneManager.changeScene(std::make_unique<GameScene>(*this));
-
-		m_gameStarted = true;
-	}
 
 	void Game::closeWindow()
 	{
@@ -207,6 +197,14 @@ namespace Rummage
 		m_window->display();
 	}
 
+#pragma region Game Functions
+	void Game::startGame()
+	{
+		createDeck();
+		m_gameStarted = true;
+	}
+#pragma endregion
+
 #pragma region Network Access
 	void Game::hostGame()
 	{
@@ -214,7 +212,8 @@ namespace Rummage
 
 		if (connected)
 		{
-			startGame();
+			// Load game scene
+			m_sceneManager.changeScene(std::make_unique<GameScene>(*this));
 		}
 	}
 
@@ -224,8 +223,21 @@ namespace Rummage
 
 		if (connected)
 		{
-			startGame();
+			// Load game scene
+			m_sceneManager.changeScene(std::make_unique<GameScene>(*this));
 		}
+	}
+
+	std::string Game::getGameCode()
+	{
+		std::string current = m_networkManager.getCurrentRoom();
+
+		if (current != "")
+		{
+			return current;
+		}
+
+		return "#####";
 	}
 #pragma endregion
 }
