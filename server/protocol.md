@@ -70,7 +70,12 @@ Request payload:
 }
 ```
 
-Response payload: n/a
+Response payload:
+```json
+{
+    "is_player_1" : true or false
+}
+```
 
 Requests the server to start the game with the given code. 
 This is sent by the joining player as once a player joins a room thats already hosted, it should start.

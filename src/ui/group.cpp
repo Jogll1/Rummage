@@ -27,7 +27,7 @@ namespace Rummage
 
 	void UIGroup::handleEvents(const sf::Vector2f& mousePos, const std::optional<sf::Event> event)
 	{
-		if (visible)
+		if (m_visible)
 		{
 			for (auto& obj : m_objs)
 			{
@@ -38,14 +38,12 @@ namespace Rummage
 
 	void UIGroup::draw(sf::RenderTarget& target, sf::RenderStates states) const
 	{
-		if (visible)
+		if (m_visible)
 		{
 			for (auto& obj : m_objs)
 			{
 				target.draw(*obj, states);
 			}
-
-
 		}
 	}
 #pragma endregion
@@ -68,7 +66,7 @@ namespace Rummage
 		{
 			auto& obj = m_objs[i];
 
-			if (obj->visible)
+			if (obj->isVisible())
 			{
 				const sf::Vector2f pos(
 					m_padding.l + newPos.x,
@@ -89,7 +87,7 @@ namespace Rummage
 
 		for (auto& obj : m_objs)
 		{
-			if (obj->visible)
+			if (obj->isVisible())
 			{
 				x = std::max(obj->getSize().x, x);
 				y += obj->getSize().y;
@@ -121,7 +119,7 @@ namespace Rummage
 		{
 			auto& obj = m_objs[i];
 
-			if (obj->visible)
+			if (obj->isVisible())
 			{
 				const sf::Vector2f pos(
 					spacing > 0 ? m_objs[lastI]->getPos().x + m_objs[lastI]->getSize().x + m_gap : m_padding.l + newPos.x,
@@ -142,7 +140,7 @@ namespace Rummage
 
 		for (auto& obj : m_objs)
 		{
-			if (obj->visible)
+			if (obj->isVisible())
 			{
 				x += obj->getSize().x;
 				y = std::max(obj->getSize().y, y);

@@ -39,6 +39,7 @@ namespace Rummage
 
 		Game* m_game;
 		std::string m_currentRoom = ""; // Current room code
+		bool m_isPlayer1 = false;
 
 		// Private functions
 
@@ -62,10 +63,12 @@ namespace Rummage
 		// Getters
 
 		std::string getCurrentRoom() { return m_currentRoom; }
+		const bool isPlayer1() const { return m_isPlayer1; }
 
 		// Public functions
 
 		bool hostGame();
 		bool joinGame(const std::string code);
+		bool requestGameStart();
 	};
 }

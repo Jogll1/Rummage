@@ -29,7 +29,7 @@ namespace Rummage
 
 		// Update size and position
 		m_size = m_text.getGlobalBounds().size + sf::Vector2f(m_padding.l + m_padding.r, m_padding.t + m_padding.b);
-		//centreText();
+		setPos(m_pos);
 	}
 
 	void Text::setAlign(UI::Align align)
@@ -61,7 +61,7 @@ namespace Rummage
 
 	void Text::draw(sf::RenderTarget& target, sf::RenderStates states) const
 	{
-		if (visible)
+		if (m_visible)
 		{
 			target.draw(m_text, states);
 		}

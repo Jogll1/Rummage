@@ -15,6 +15,8 @@ namespace Rummage
 	class Scene : public sf::Drawable
 	{
 	protected:
+		std::string m_name = "Scene";
+
 		Game& m_game;
 		std::unique_ptr<UI> m_UI = nullptr;
 	public:
@@ -23,7 +25,9 @@ namespace Rummage
 
 		// Getters
 
+		std::string getName() { return m_name; }
 		virtual std::vector<WorldObject> itemsToCentre() = 0; // Select the WorldObjects that will centre the scene
+		UI* getUI() { return m_UI.get(); }
 
 		// Public functions
 

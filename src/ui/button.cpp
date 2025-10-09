@@ -49,7 +49,7 @@ namespace Rummage
 
 	void Button::handleEvents(const sf::Vector2f& mousePos, const std::optional<sf::Event> event)
 	{
-		if (visible && isActive)
+		if (m_visible && m_isActive)
 		{
 			// Check for click
 			if (isMouseOver(mousePos) && !m_isClicked)
@@ -89,7 +89,7 @@ namespace Rummage
 						// Callable
 						m_onClick();
 
-						if (disableOnClick) isActive = false;
+						if (m_disableOnClick) m_isActive = false;
 					}
 				}
 			}
@@ -98,10 +98,10 @@ namespace Rummage
 
 	void Button::draw(sf::RenderTarget& target, sf::RenderStates states) const
 	{
-		if (visible)
+		if (m_visible)
 		{
 			// Set inactive buttons to be a bit darker
-			if (!isActive)
+			if (!m_isActive)
 			{
 				m_currentSprite->setColor(sf::Color(211, 211, 211));
 			}

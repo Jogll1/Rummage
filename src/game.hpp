@@ -37,8 +37,8 @@ namespace Rummage
 
 		// Game
 
-		std::vector<std::unique_ptr<Tile>> m_deck;
 		bool m_gameStarted = false;
+		bool m_isMyTurn = false;
 
 		// Private functions
 
@@ -47,8 +47,6 @@ namespace Rummage
 		sf::Vector2f getGameWorldSize();
 		sf::Vector2f getGameWorldCentre();
 		sf::Vector2f getMousePosView() const { return m_window->mapPixelToCoords(sf::Mouse::getPosition(*m_window)); }
-
-		void createDeck();
 
 		void pollEvents(const sf::Vector2f& mousePosView);
 		void resizeView(int windowWidth, int windowHeight);
@@ -60,7 +58,6 @@ namespace Rummage
 		// Getters
 
 		bool isRunning() const;
-		std::vector<std::unique_ptr<Tile>>& getDeck() { return m_deck; }
 		NetworkManager* getNetworkManager() { return &m_networkManager; }
 
 		// Public functions
@@ -70,14 +67,15 @@ namespace Rummage
 		void update();
 		void render();
 
-		// Game
-
-		void startGame();
-
 		// Network functions
 
 		void hostGame();
 		void joinGame(const std::string code);
 		std::string getGameCode();
+
+		// Game
+
+		void startGame();
+		std::unique_ptr<Tile> requestTile();
 	};
 }

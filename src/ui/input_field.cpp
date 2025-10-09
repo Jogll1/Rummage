@@ -44,7 +44,7 @@ namespace Rummage
 
 	void InputField::handleEvents(const sf::Vector2f& mousePos, const std::optional<sf::Event> event)
 	{
-		if (visible)
+		if (m_visible)
 		{
 			// Set outline
 			bool mouseOver = isMouseOver(mousePos);
@@ -93,7 +93,7 @@ namespace Rummage
 
 	void InputField::draw(sf::RenderTarget& target, sf::RenderStates states) const
 	{
-		if (visible)
+		if (m_visible)
 		{
 			if (m_drawOutline && m_outlineShader)
 			{

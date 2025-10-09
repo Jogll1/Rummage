@@ -19,7 +19,7 @@ namespace Rummage
 	{
 		for (auto& obj : m_UI->getElements())
 		{
-			obj->visible = obj->tag != "main";
+			obj->setVisible(obj->getTag() != "main");
 		}
 	}
 
@@ -27,7 +27,7 @@ namespace Rummage
 	{
 		for (auto& obj : m_UI->getElements())
 		{
-			obj->visible = obj->tag != "join";
+			obj->setVisible(obj->getTag() != "join");
 		}
 	}
 
@@ -43,11 +43,10 @@ namespace Rummage
 		// When pressing host or join, disable host and join in a UI wrapper function of m_game.hostGame()
 
 		std::unique_ptr<UIVGroup> mainMenu = std::make_unique<UIVGroup>(2.f, sf::Vector2f(0, 0), Padding(0, 0, 4, 4));
-		mainMenu->tag = "main";
+		mainMenu->setTag("main");
 
 		std::unique_ptr<Button> hostButton = std::make_unique<Button>("HOST", sf::IntRect({ 136, 3 }, { 36, 16 }), sf::IntRect({ 180, 3 }, { 36, 16 }));
 		hostButton->setCallback([this]() { this->m_game.hostGame(); });
-		hostButton->disableOnClick = true;
 		std::unique_ptr<Button> joinButton = std::make_unique<Button>("JOIN", sf::IntRect({ 136, 3 }, { 36, 16 }), sf::IntRect({ 180, 3 }, { 36, 16 }));
 		joinButton->setCallback([this]() { this->openJoinMenu(); });
 		std::unique_ptr<Button> quitButton = std::make_unique<Button>("QUIT", sf::IntRect({ 136, 3 }, { 36, 16 }), sf::IntRect({ 180, 3 }, { 36, 16 }));
@@ -61,11 +60,11 @@ namespace Rummage
 		// === Join === 
 
 		std::unique_ptr<UIVGroup> joinMenu = std::make_unique<UIVGroup>(2.f, sf::Vector2f(0, 0), Padding(0, 0, 4, 4));
-		joinMenu->tag = "join";
-		joinMenu->visible = false;
+		joinMenu->setTag("join");
+		joinMenu->setVisible(false);
 
 		std::unique_ptr<InputField> roomInput = std::make_unique<InputField>(sf::IntRect({ 224, 3 }, { 36, 16 }));
-		roomInput->tag = "code_input";
+		roomInput->setTag("code_input");
 		std::unique_ptr<Button> playButton = std::make_unique<Button>("PLAY", sf::IntRect({ 136, 3 }, { 36, 16 }), sf::IntRect({ 180, 3 }, { 36, 16 }));
 		InputField* roomInputPtr = roomInput.get();
 		playButton->setCallback([this, roomInputPtr]() { this->m_game.joinGame(roomInputPtr->getAnsiValue()); });
@@ -90,6 +89,7 @@ namespace Rummage
 
 	MenuScene::MenuScene(Game& game) : Scene(game)
 	{
+		m_name = "Main";
 		m_UI = createMenuUI();
 	}
 

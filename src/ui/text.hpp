@@ -20,6 +20,10 @@ namespace Rummage
 	public:
 		Text(const std::string& text, unsigned int size = 100, sf::Color colour = { 40, 39, 39 }, sf::Vector2f pos = {0, 0}, Padding padding = {0, 0, 0, 0});
 
+		// Getters
+
+		std::string getTextStr() { return m_cText; }
+
 		// Setters
 
 		void setText(const std::string& text);

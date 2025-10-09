@@ -1,5 +1,7 @@
 # Peer-hosted matchmaking server
 
+from dataclasses import dataclass
+from enum import Enum
 import socket
 import random
 import string
@@ -13,13 +15,54 @@ MAX_PLAYERS = 2        # This is a two-player game
 TCP_PORT       = 54000 # Port for game
 DISCOVERY_PORT = 54001 # Port for host discovery
 
+# === Data Classes ===
+
+class Suit(Enum):
+	S_NONE = 0
+	S_SUN = 1
+	S_MOON = 2
+	S_VENUS = 3
+	S_MARS = 4
+	S_MAX = 5
+
+class Rank(Enum):
+	R_NONE = 0,
+	R_A = 1,
+	R_2 = 2,
+	R_3 = 3,
+	R_4 = 4,
+	R_5 = 5,
+	R_6 = 6,
+	R_7 = 7,
+	R_8 = 8,
+	R_9 = 9,
+	R_J = 10,
+	R_Q = 11,
+	R_K = 12,
+	R_MAX = 13
+
+class Tile:
+	def __init__(self, suit: Suit = Suit.S_NONE, rank: Rank = Rank.R_NONE):
+		self.suit = suit
+		self.rank = rank
+
+# === Networking Classes ===
+
 class Room:
-	def __init__(self, host_connection: socket.socket, host_address, code=None):
+	def __init__(self, server, host_connection: socket.socket, host_address, code=None):
+		self.server       = server
 		self.host         = host_connection
 		self.address      = host_address
 		self.clients      = [host_connection]
 		self.code         = code or self.generate_code()
+
+		# Game
 		self.game_started = False
+		self.player_1 = host_connection
+		self.current_game_state: dict = {
+			"deck" : [],
+			"turn" : 0
+		}
 
 	@staticmethod
 	def generate_code(length=5) -> str:
@@ -28,9 +71,29 @@ class Room:
 	def is_full(self) -> bool:
 		return len(self.clients) >= MAX_PLAYERS
 	
-	def broadcast(self, server, message: dict):
+	def send_to_client(self, client: socket.socket, message: dict):
+		if client in self.clients:
+			self.server.send_message_tcp(client, message)
+
+	def broadcast(self, message: dict):
 		for client in self.clients:
-			server.send_message_tcp(client, message)
+			self.server.send_message_tcp(client, message)
+
+	def start_game(self):
+		if self.is_full():
+			print(f"[ROOM {self.code}] Game started.", flush=True)
+			self.game_started = True
+
+			# Tell players game has started, and assign player 1
+			self.player_1 = self.clients[random.randint(0, 1)]
+			for client in self.clients:
+				self.send_to_client(client, {
+					"type" : "notification",
+					"action" : "game_started",
+					"payload" : {
+						"is_player_1" : client == self.player_1
+					}	
+				})	
 
 class Server:
 	def __init__(self, host=None, port=54000):
@@ -131,13 +194,12 @@ class Server:
 		if self.check_json_key(message_json, 'type', 'request'):
 			# create_room
 			if self.check_json_key(message_json, 'action', 'create_room'):
-				room = Room(from_connection, from_address)
+				room = Room(self, from_connection, from_address)
 
 				while room.code in self.rooms:
 					room.code = Room.generate_code()
 
 				self.rooms[room.code] = room
-
 				print(f"[ROOM {room.code}] Room created.", flush=True)
 
 				# Respond
@@ -179,15 +241,9 @@ class Server:
 				if 'room_code' in message_json['payload']:
 					code = message_json['payload']['room_code'].upper()
 
-					if code in self.rooms and self.rooms[code].is_full():
-						room: Room = self.rooms[code]
-						print(f"[ROOM {code}] Game started.", flush=True)
-						room.game_started = True
-						room.broadcast(self, {
-							"type" : "notification",
-							"action" : "game_started",
-							"payload" : {}
-						})
+					# Start game
+					if code in self.rooms:
+						self.rooms[code].start_game()
 
 				return
 

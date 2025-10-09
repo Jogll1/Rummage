@@ -17,16 +17,28 @@ namespace Rummage
 	class UIObject : public WorldObject, public sf::Drawable
 	{
 	protected:
+		bool m_visible = true;
+		std::string m_tag = "";
+
 		virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override = 0;
 	public:
 		UIObject(sf::Vector2f pos = { 0, 0 }, Padding padding = { 0, 0, 0, 0 }) : WorldObject(pos, padding) {}
 		virtual ~UIObject() = default;
 
-		bool visible = true;
-		std::string tag = "";
+		// Getters
+
+		const bool isVisible() const { return m_visible; }
+		const std::string getTag() const { return m_tag; }
+			
+		// Setters
+
+		void setVisible(bool value) { m_visible = value; }
+		void setTag(std::string value) { m_tag = value; }
+
+		// Public functions
 	
 		virtual void setPos(const sf::Vector2f& newPos) override = 0;
-		virtual UIObject* findWithTag(const std::string tag) { return tag == tag ? this : nullptr; };
+		virtual UIObject* findWithTag(const std::string tag) { return tag == m_tag ? this : nullptr; };
 		virtual void handleEvents(const sf::Vector2f& mousePos, const std::optional<sf::Event> event) = 0;
 	};
 

@@ -31,7 +31,8 @@ namespace Rummage
 			m_board->getPos().y + 0.5f * (m_board->getPadding().t - roomCodeText->getSize().y) 
 		});
 
-		std::unique_ptr<Text> turnText = std::make_unique<Text>("Your turn!");
+		std::unique_ptr<Text> turnText = std::make_unique<Text>("Waiting for opponent...");
+		turnText->setTag("turn_text");
 		turnText->setAlign(UI::Align::RIGHT);
 		turnText->setPos({
 			m_board->getPos().x + m_board->getSize().x - m_board->getPadding().l,
@@ -43,8 +44,12 @@ namespace Rummage
 		std::unique_ptr<UIVGroup> actionMenu = std::make_unique<UIVGroup>(2.f, sf::Vector2f(0, 0));
 
 		std::unique_ptr<Button> drawButton = std::make_unique<Button>("DRAW", sf::IntRect({ 136, 3 }, { 36, 16 }), sf::IntRect({ 180, 3 }, { 36, 16 }));
+		drawButton->setTag("draw_button");
+		drawButton->setActive(false);
 		drawButton->setCallback([this]() { this->drawToHand(); });
 		std::unique_ptr<Button> clearButton = std::make_unique<Button>("CLEAR", sf::IntRect({ 136, 3 }, { 36, 16 }), sf::IntRect({ 180, 3 }, { 36, 16 }));
+		clearButton->setTag("clear_button");
+		clearButton->setActive(false);
 		clearButton->setCallback([this]() { this->drawToHand(); });
 
 		actionMenu->addElement(std::move(drawButton));
@@ -65,7 +70,7 @@ namespace Rummage
 
 	void GameScene::drawToHand()
 	{
-		m_hand->drawTileFromDeck(m_game.getDeck());
+		
 	}
 
 	// Swaps the tiles at From and To if they are valid in their destinations.
@@ -388,6 +393,8 @@ namespace Rummage
 
 	GameScene::GameScene(Game& game) : Scene(game)
 	{
+		m_name = "Game";
+
 		// Create and position new board and hand
 		m_board = std::make_shared<Board>(11u, 11u, 2, sf::Vector2f(0, 0), Padding(48, 48, 16, 8));
 		m_hand = std::make_shared<Board>(11u, 2u, 2, sf::Vector2f(0, 0), Padding(48, 48, 8, 16));
@@ -407,6 +414,30 @@ namespace Rummage
 	}
 
 	// Public functions
+
+	void GameScene::setTurn(bool isMyTurn)
+	{
+		// Set turn text
+		auto* turnText = m_UI->findWithTag("turn_text");
+		if (Text* text = dynamic_cast<Text*>(turnText))
+		{
+			text->setText(isMyTurn ? "Your turn" : "Opponent's turn");
+		}
+
+		// Set draw button
+		auto* drawButton = m_UI->findWithTag("draw_button");
+		if (Button* button = dynamic_cast<Button*>(drawButton))
+		{
+			button->setActive(isMyTurn);
+		}
+
+		// Set clear button
+		auto* clearButton = m_UI->findWithTag("clear_button");
+		if (Button* button = dynamic_cast<Button*>(clearButton))
+		{
+			button->setActive(isMyTurn);
+		}
+	}
 
 	void GameScene::handleEvents(const sf::Vector2f& mousePosView, const std::optional<sf::Event> event)
 	{

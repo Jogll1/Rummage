@@ -14,6 +14,7 @@
 #include "ui/button.hpp"
 #include "ui/input_field.hpp"
 #include "ui/image.hpp"
+#include "ui/text.hpp"
 
 #include "scenes/menu_scene.hpp"
 #include "scenes/game_scene.hpp"
@@ -55,7 +56,7 @@ namespace Rummage
 		return sf::Vector2f();
 	}
 
-	void Game::createDeck()
+	/*void Game::createDeck()
 	{
 		m_deck.clear();
 
@@ -82,7 +83,7 @@ namespace Rummage
 			size_t j = rand() % i;
 			std::iter_swap(m_deck.begin() + i, m_deck.begin() + j);
 		}
-	}
+	}*/
 
 	void Game::pollEvents(const sf::Vector2f& mousePosView)
 	{
@@ -197,14 +198,6 @@ namespace Rummage
 		m_window->display();
 	}
 
-#pragma region Game Functions
-	void Game::startGame()
-	{
-		createDeck();
-		m_gameStarted = true;
-	}
-#pragma endregion
-
 #pragma region Network Access
 	void Game::hostGame()
 	{
@@ -225,6 +218,9 @@ namespace Rummage
 		{
 			// Load game scene
 			m_sceneManager.changeScene(std::make_unique<GameScene>(*this));
+
+			// Request to start the game
+			m_networkManager.requestGameStart();
 		}
 	}
 
@@ -238,6 +234,25 @@ namespace Rummage
 		}
 
 		return "#####";
+	}
+#pragma endregion
+
+#pragma region Game Functions
+	void Game::startGame()
+	{
+		m_gameStarted = true;
+
+		// Set clear button
+		auto* currentScene = m_sceneManager.getCurrentScene();
+		if (GameScene* scene = dynamic_cast<GameScene*>(currentScene))
+		{
+			scene->setTurn(m_networkManager.isPlayer1());
+		}
+	}
+
+	std::unique_ptr<Tile> Game::requestTile()
+	{
+		return std::unique_ptr<Tile>();
 	}
 #pragma endregion
 }

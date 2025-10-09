@@ -25,18 +25,24 @@ namespace Rummage
 
 		bool m_isClicked = false;
 		std::function<void()> m_onClick = nullptr;
+
+		bool m_isActive = true;
+		bool m_disableOnClick = false;
 	protected:
 		virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 	public:
 		Button(const std::string& text, sf::IntRect normalRect, sf::IntRect clickedRect, sf::Vector2f pos = { 0, 0 });
 
-		bool isActive = true;
-		bool disableOnClick = false;
-
 		// Setters
 
 		void setCallback(std::function<void()> onClick);
 		virtual void setPos(const sf::Vector2f& newPos) override;
+		void setActive(bool value) { m_isActive = value; }
+		void seDisableOnClick(bool value) { m_disableOnClick = value; }
+
+		// Getters
+
+		const bool isActive() const { return m_isActive; }
 
 		// Public functions
 

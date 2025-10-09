@@ -23,7 +23,7 @@ namespace Rummage
 
 	void Image::draw(sf::RenderTarget& target, sf::RenderStates states) const
 	{
-		if (visible)
+		if (m_visible)
 		{
 			if (m_drawOutline && m_outlineShader)
 			{

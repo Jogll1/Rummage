@@ -13,7 +13,7 @@
 #include <SFML/Network.hpp>
 #include <nlohmann/json.hpp>
 
-#include "../game.hpp";
+#include "../game.hpp"
 
 namespace Rummage
 {
@@ -271,6 +271,7 @@ namespace Rummage
 			// === Game Actions ===
 			if (action == "game_started")
 			{
+				m_isPlayer1 = message["payload"]["is_player_1"];
 				std::cout << "[ROOM] Game started!\n";
 				m_game->startGame();
 			}
@@ -397,24 +398,30 @@ namespace Rummage
 				m_currentRoom = code;
 				std::cout << "[ROOM] Joined room " << code << ".\n";
 
-				// Ask the server to start the game
-				const json startSendData = {
-					{"type", "request"},
-					{"action", "start_game"},
-					{"payload", {{"room_code", code}} }
-				};
-
-				if (!sendMessageTCP(m_socket, startSendData))
-				{
-					// ERROR!
-					std::cerr << "[ERROR] Failed to send game start request. \n";
-				}
-
 				return true;
 			}
 		}
 
 		std::cerr << "[ERROR] Failed to join room.\n";
 		return false;
+	}
+
+	bool NetworkManager::requestGameStart()
+	{
+		// Ask the server to start the game
+		const json startSendData = {
+			{"type", "request"},
+			{"action", "start_game"},
+			{"payload", {{"room_code", m_currentRoom}} }
+		};
+
+		if (!sendMessageTCP(m_socket, startSendData))
+		{
+			// ERROR!
+			std::cerr << "[ERROR] Failed to send game start request. \n";
+			return false;
+		}
+
+		return true;
 	}
 }
